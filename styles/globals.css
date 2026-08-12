@@ -1,6 +1,8 @@
-module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-};
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #ffffff;
+  color: #1a1a1a;
+}
