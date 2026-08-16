@@ -1,15 +1,11 @@
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-
-export default function Menu() {
-  return (
-    <>
-      <Header />
-      <main className="p-6">
-        <h2 className="text-3xl font-bold mb-4">Menu</h2>
-        <p>This page will show your Square menu items.</p>
-      </main>
-      <Footer />
-    </>
-  );
+import { fetchMenuItems } from '../../lib/square';
+ 
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+ 
+  const items = await fetchMenuItems();
+  res.status(200).json({ items });
+}
 }
