@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Libre+Franklin:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  background: #ffffff;
-  color: #1a1a1a;
+  background-color: #232b1d;
+  color: #f4eedd;
 }
