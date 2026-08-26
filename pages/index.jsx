@@ -50,13 +50,13 @@ export default function Home({ items }) {
           </p>
           <div className="flex items-center gap-[18px] flex-wrap">
             <a
-              href="#menu"
+              href="/menu"
               className="inline-block font-mono font-bold text-sm tracking-[1.5px] uppercase text-paper bg-chili border-2 border-chili px-7 py-[15px] rounded-[2px] -rotate-2 hover:rotate-0 hover:-translate-y-0.5 hover:bg-chili-dark transition-all"
             >
               Order pickup →
             </a>
             <a
-              href="#menu"
+              href="/menu"
               className="font-mono text-[13px] tracking-wide uppercase text-paper border-b border-paper-line pb-[3px] hover:border-mustard hover:text-mustard transition-colors"
             >
               View menu
@@ -83,7 +83,7 @@ export default function Home({ items }) {
         </div>
       </div>
 
-      {/* Menu */}
+      {/* Featured items */}
       <section className="max-w-[1120px] mx-auto px-8 py-16 md:py-[88px]" id="menu">
         <div className="flex justify-between items-end flex-wrap gap-4 mb-11">
           <div>
@@ -91,7 +91,7 @@ export default function Home({ items }) {
             <h2 className="font-mono font-bold text-[28px] text-paper">Today&apos;s favourites</h2>
           </div>
           <a
-            href="#"
+            href="/menu"
             className="font-mono text-[13px] tracking-wide uppercase text-paper border-b border-paper-line pb-[3px] hover:border-mustard hover:text-mustard transition-colors"
           >
             Full menu →
@@ -115,7 +115,7 @@ export default function Home({ items }) {
 
         <div className="mt-10 text-center">
           <a
-            href="#menu"
+            href="/menu"
             className="inline-block font-mono font-bold text-sm tracking-[1.5px] uppercase text-paper bg-chili border-2 border-chili px-7 py-[15px] rounded-[2px] -rotate-2 hover:rotate-0 hover:-translate-y-0.5 hover:bg-chili-dark transition-all"
           >
             Order pickup →
@@ -170,5 +170,6 @@ export default function Home({ items }) {
       <Footer />
     </>
   );
+}
 }
 
