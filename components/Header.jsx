@@ -6,10 +6,8 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-30 bg-bg-dark border-b border-paper/10">
       <div className="max-w-[1120px] mx-auto flex items-center justify-between px-8 py-[18px]">
-        <a href="/" className="flex items-center gap-2.5 font-mono font-bold text-[15px] tracking-wide uppercase">
-          <span className="w-[30px] h-[30px] rounded-full border border-[1.5px] border-paper flex items-center justify-center text-[13px]">
-            🥪
-          </span>
+        <a href="/" className="flex items-center gap-3 font-mono font-bold text-[15px] tracking-wide uppercase">
+          <img src="/logo-light.svg" alt="Lunch Bar Woy Woy" className="w-9 h-9" />
           Lunch Bar Woy Woy
         </a>
         <nav className="flex items-center gap-9 text-sm font-medium">
@@ -33,4 +31,5 @@ export default function Header() {
     </header>
   );
 }
+
 
