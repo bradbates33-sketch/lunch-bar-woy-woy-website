@@ -1,4 +1,3 @@
-nfig · JS
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
