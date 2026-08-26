@@ -1,4 +1,8 @@
+import { useCart } from './CartContext';
+
 export default function MenuCard({ item }) {
+  const { addItem } = useCart();
+
   return (
     <div
       className="group relative bg-paper text-ink rounded-[3px] pt-[22px] px-[22px] pb-6
@@ -14,9 +18,12 @@ export default function MenuCard({ item }) {
         <span className="font-mono font-bold text-[15px] text-chili-dark">
           {item.price ? `$${item.price}` : 'POA'}
         </span>
-        <span className="font-mono text-[11px] tracking-wide uppercase bg-ink text-paper px-3 py-2 rounded-[2px] transition-colors group-hover:bg-chili">
+        <button
+          onClick={() => addItem(item)}
+          className="font-mono text-[11px] tracking-wide uppercase bg-ink text-paper px-3 py-2 rounded-[2px] transition-colors hover:bg-chili"
+        >
           Add +
-        </span>
+        </button>
       </div>
     </div>
   );
