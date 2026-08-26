@@ -27,7 +27,7 @@ export default function HoursCard() {
         <span>12 Blackwall Rd, Woy Woy NSW 2256</span>
         <span>(02) 4341 0000</span>
       </div>
-
+<a
       
         href="tel:0243410000"
         className="mt-[18px] block text-center w-full bg-ink text-paper font-mono text-xs tracking-wide uppercase py-3 rounded-[2px] hover:bg-chili transition-colors"
