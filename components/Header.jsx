@@ -7,7 +7,7 @@ export default function Header() {
     <header className="sticky top-0 z-30 bg-bg-dark border-b border-paper/10">
       <div className="max-w-[1120px] mx-auto flex items-center justify-between px-8 py-[18px]">
         <a href="/" className="flex items-center gap-3 font-mono font-bold text-[15px] tracking-wide uppercase">
-          <img src="/logo-light.svg" alt="Lunch Bar Woy Woy" className="w-14 h-14" />
+          <img src="/logo-light.svg" alt="Lunch Bar Woy Woy" className="w-18 h-18" />
           Lunch Bar Woy Woy
         </a>
         <nav className="flex items-center gap-9 text-sm font-medium">
