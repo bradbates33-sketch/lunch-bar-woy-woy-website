@@ -7,8 +7,8 @@ export default function Contact() {
       <Header />
       <main className="p-6">
         <h2 className="text-3xl font-bold mb-4">Contact Us</h2>
-        <p>Address: Woy Woy, NSW</p>
-        <p>Phone: 0400 000 000</p>
+        <p>Address: 35 Blackwall Road, Woy Woy NSW 2256</p>
+        <p>Phone: 0422 430 033</p>
       </main>
       <Footer />
     </>

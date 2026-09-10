@@ -26,7 +26,7 @@ export default function Home({ items }) {
         <title>Lunch Bar Woy Woy</title>
         <meta
           name="description"
-          content="Fresh sandwiches, rolls and coffee made to order. Order pickup online in Woy Woy."
+          content="Toasted sandwiches, Greek gyros, Coffee & more, made to order in the heart of Woy Woy. Order ahead and skip the queue."
         />
       </Head>
 
@@ -45,8 +45,8 @@ export default function Home({ items }) {
             <span className="text-chili">local.</span>
           </h1>
           <p className="text-[17px] text-ink/70 max-w-[460px] mb-[34px]">
-            Sandwiches, rolls and coffee made to order on the waterfront side of Woy Woy. Order
-            ahead and skip the queue.
+            Toasted sandwiches, Greek gyros, Coffee &amp; more, made to order in the heart of Woy
+            Woy. Order ahead and skip the queue.
           </p>
           <div className="flex items-center gap-[18px] flex-wrap">
             <a
@@ -70,10 +70,10 @@ export default function Home({ items }) {
       <div className="bg-bg-panel border-y border-black/10">
         <div className="max-w-[1120px] mx-auto px-8 py-5 flex flex-wrap gap-7 justify-between items-center font-mono text-[13px] text-paper/70">
           <div>
-            <strong className="text-paper font-bold">Open today</strong>&nbsp;7:00am – 3:00pm
+            <strong className="text-paper font-bold">Open</strong>&nbsp;Mon–Fri 6:00am – 2:00pm
           </div>
-          <div>12 Blackwall Rd, Woy Woy NSW</div>
-          <div>(02) 4341 0000</div>
+          <div>35 Blackwall Rd, Woy Woy NSW</div>
+          <div>0422 430 033</div>
           <a
             href="#location"
             className="border-b border-paper/40 pb-[3px] hover:border-paper hover:text-paper transition-colors"
@@ -140,7 +140,7 @@ export default function Home({ items }) {
             </p>
             <div className="flex gap-10 mt-8 font-mono">
               <div>
-                <div className="text-[26px] font-bold text-paper">7am</div>
+                <div className="text-[26px] font-bold text-paper">6am</div>
                 <div className="text-[11px] tracking-wide uppercase text-paper/60 mt-1">First roll out</div>
               </div>
               <div>
@@ -161,8 +161,16 @@ export default function Home({ items }) {
         className="max-w-[1120px] mx-auto px-8 py-16 md:py-[88px] grid md:grid-cols-2 gap-10"
         id="location"
       >
-        <div className="aspect-[4/3] bg-bg-panel rounded-[3px] flex items-center justify-center font-mono text-xs text-paper/60 tracking-wide uppercase border border-dashed border-paper/15">
-          Map — 12 Blackwall Rd, Woy Woy
+        <div className="aspect-[4/3] rounded-[3px] overflow-hidden border border-ink/15">
+          <iframe
+            title="Map to Lunch Bar Woy Woy — 35 Blackwall Road, Woy Woy NSW"
+            src="https://www.google.com/maps?q=35%20Blackwall%20Road%2C%20Woy%20Woy%20NSW%202256&output=embed"
+            className="w-full h-full"
+            style={{ border: 0 }}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+          />
         </div>
         <HoursCard />
       </section>

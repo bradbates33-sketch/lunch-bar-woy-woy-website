@@ -7,7 +7,7 @@ export default function Footer() {
             Lunch Bar Woy Woy
           </h4>
           <p className="text-[13.5px] text-paper/60 leading-relaxed">
-            12 Blackwall Rd
+            35 Blackwall Rd
             <br />
             Woy Woy NSW 2256
           </p>
