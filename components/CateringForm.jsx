@@ -290,7 +290,9 @@ export default function CateringForm({ kind, packages, usingFallback }) {
           </div>
           {method === 'Delivery' && (
             <Field label="Delivery address" error={errors.address}
-              hint={`Free over ${formatMoney(CATERING.delivery.freeOverCents)}, otherwise a ${formatMoney(CATERING.delivery.flatFeeCents)} flat fee.`}>
+              hint={isKids
+                ? `Free delivery within ${CATERING.delivery.radiusKm} km.`
+                : `Free over ${formatMoney(CATERING.delivery.freeOverCents)}, otherwise a ${formatMoney(CATERING.delivery.flatFeeCents)} flat fee.`}>
               <input type="text" value={form.address} onChange={set('address')} autoComplete="street-address"
                 placeholder="Venue / street, suburb, postcode" className={inputCls} />
             </Field>

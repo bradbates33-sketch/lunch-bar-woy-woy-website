@@ -36,8 +36,8 @@ export default function KidsCatering({ packages, usingFallback }) {
         <div className="font-mono text-xs tracking-[2px] uppercase text-chili mb-2.5">Kids Catering</div>
         <h1 className="font-mono font-bold text-[32px] text-ink mb-3">Order kids&apos; catering by the docket</h1>
         <p className="text-ink/70 max-w-[540px]">
-          Individually packed, labelled lunches for junior sport camps, school groups and kids&apos;
-          parties. Pick a lunch, tell us the headcount, pay by card.
+          Individually packed, labelled options for junior sport camps, school groups and kids&apos;
+          parties. Pick a package, tell us the headcount, pay by card.
         </p>
         <div className="mt-5 flex flex-wrap gap-2.5 font-mono text-[11px] text-ink/70">
           {['No minimum order', `${CATERING.noticeHours} hrs notice`, 'Nut-free as standard', 'Delivered chilled', 'Pay by card'].map((t) => (
