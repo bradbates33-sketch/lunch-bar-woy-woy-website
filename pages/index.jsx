@@ -126,8 +126,13 @@ export default function Home({ items }) {
       {/* About */}
       <section className="bg-bg-panel px-8 py-16 md:py-[88px]" id="about">
         <div className="max-w-[1120px] mx-auto grid md:grid-cols-[0.9fr_1.1fr] gap-10 md:gap-16 items-center">
-          <div className="aspect-[4/5] bg-bg-panel-2 rounded-[3px] flex items-center justify-center font-mono text-xs text-paper/60 tracking-wide uppercase border border-dashed border-paper/20">
-            Shopfront photo
+          <div className="aspect-[4/3] rounded-[3px] overflow-hidden border border-paper/15">
+            <img
+              src="/storefront.jpg"
+              alt="Lunch Bar Woy Woy shopfront on Blackwall Road, Woy Woy"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
           </div>
           <div>
             <p className="text-lg text-paper mb-[18px]">Woy Woy born, family run since day one.</p>
