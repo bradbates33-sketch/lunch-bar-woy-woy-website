@@ -14,6 +14,9 @@ export default function Header() {
           <a href="/menu" className="hidden sm:inline text-paper/60 hover:text-paper transition-colors">
             Menu
           </a>
+          <a href="/catering" className="hidden sm:inline text-paper/60 hover:text-paper transition-colors">
+            Catering
+          </a>
           <a href="/#about" className="hidden sm:inline text-paper/60 hover:text-paper transition-colors">
             About
           </a>
