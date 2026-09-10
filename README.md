@@ -20,7 +20,7 @@ live menu (`lib/square.js`) and every checkout. Set them in Vercel too.
 - **Pickup menu** (`/menu`): items come from the Square catalog, added to a
   cart (`components/CartContext.jsx`), checked out via
   `pages/api/create-checkout.js` -> Square payment link -> `/order-confirmed`.
-- **Catering** (`/catering`, `/kids-camps`): see below.
+- **Catering** (`/catering`, `/kids-catering`): see below.
 
 ## Catering
 
@@ -32,7 +32,7 @@ Two order pages, one shared form (`components/CateringForm.jsx`), rules in
 1. In the Square Dashboard, create two catalog **categories**:
    - `Catering` — for platter packages (Morning Tea, Working Lunch, Grazing
      Table, …). Price each item **per guest**.
-   - `Kids & Camps` — for the packed camp lunches (Kickoff Lunch, Fuel
+   - `Kids Catering` — for the packed kids' lunches (Kickoff Lunch, Fuel
      Lunch). Price each item **per child**.
 2. Add the items with descriptions. `fetchMenu()` picks them up automatically
    (cached 5 min via ISR).
@@ -45,7 +45,7 @@ Two order pages, one shared form (`components/CateringForm.jsx`), rules in
 - **Platters:** customer pays a **30% deposit** by card now (Square hosted
   checkout). Full order total + all event details are stored on the Square
   order note/metadata. Invoice the balance from Square before the event.
-- **Kids & Camps:** customer pays the **full amount** by card now.
+- **Kids Catering:** customer pays the **full amount** by card now.
 - The charged amount is always recomputed server-side in `lib/catering.js`
   from the Square price × headcount — a tampered browser request can't change
   it. If the checkout call fails, the page falls back to the email enquiry.

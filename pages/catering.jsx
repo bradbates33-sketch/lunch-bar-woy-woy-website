@@ -45,8 +45,8 @@ export default function Catering({ packages, usingFallback }) {
           ))}
         </div>
         <p className="mt-4 font-mono text-[12px] text-ink/60">
-          Ordering lunches for a kids&apos; sport camp or school group?{' '}
-          <a href="/kids-camps" className="text-chili border-b border-chili/40 hover:border-chili">Kids &amp; Camps page →</a>
+          Sport camp, school group or kids&apos; party?{' '}
+          <a href="/kids-catering" className="text-chili border-b border-chili/40 hover:border-chili">Kids Catering page →</a>
         </p>
       </section>
 

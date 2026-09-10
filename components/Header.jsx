@@ -10,17 +10,20 @@ export default function Header() {
           <img src="/logo.svg" alt="Lunch Bar Woy Woy" className="w-16 h-16" />
           Lunch Bar Woy Woy
         </a>
-        <nav className="flex items-center gap-9 text-sm font-medium">
+        <nav className="flex items-center gap-6 md:gap-8 text-sm font-medium">
           <a href="/menu" className="hidden sm:inline text-ink/60 hover:text-ink transition-colors">
             Menu
           </a>
           <a href="/catering" className="hidden sm:inline text-ink/60 hover:text-ink transition-colors">
             Catering
           </a>
-          <a href="/#about" className="hidden sm:inline text-ink/60 hover:text-ink transition-colors">
+          <a href="/kids-catering" className="hidden sm:inline text-ink/60 hover:text-ink transition-colors">
+            Kids Catering
+          </a>
+          <a href="/#about" className="hidden lg:inline text-ink/60 hover:text-ink transition-colors">
             About
           </a>
-          <a href="/#location" className="hidden sm:inline text-ink/60 hover:text-ink transition-colors">
+          <a href="/#location" className="hidden md:inline text-ink/60 hover:text-ink transition-colors">
             Location
           </a>
           <button

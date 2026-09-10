@@ -19,22 +19,22 @@ export async function getStaticProps() {
   };
 }
 
-export default function KidsCamps({ packages, usingFallback }) {
+export default function KidsCatering({ packages, usingFallback }) {
   return (
     <>
       <Head>
-        <title>Kids &amp; Camps Lunches — Lunch Bar Woy Woy</title>
+        <title>Kids Catering — Lunch Bar Woy Woy</title>
         <meta
           name="description"
-          content="Individually packed, labelled lunches for junior sport camps, school groups and kids' parties. Pay by card."
+          content="Individually packed, labelled lunches for junior sport camps, school groups and kids' parties. Order online, pay by card."
         />
       </Head>
 
       <Header />
 
       <section className="max-w-[1120px] mx-auto px-8 pt-14 pb-8">
-        <div className="font-mono text-xs tracking-[2px] uppercase text-chili mb-2.5">Kids &amp; Camps</div>
-        <h1 className="font-mono font-bold text-[32px] text-ink mb-3">Lunch, handled for camp day</h1>
+        <div className="font-mono text-xs tracking-[2px] uppercase text-chili mb-2.5">Kids Catering</div>
+        <h1 className="font-mono font-bold text-[32px] text-ink mb-3">Order kids&apos; lunches by the docket</h1>
         <p className="text-ink/70 max-w-[540px]">
           Individually packed, labelled lunches for junior sport camps, school groups and kids&apos;
           parties. Pick a lunch, tell us the headcount, pay by card.

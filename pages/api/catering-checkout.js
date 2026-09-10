@@ -188,7 +188,7 @@ async function notifyKitchen({ ref, note, quote, item, customer, kind }) {
     `Catering order ${ref} — customer sent to Square checkout.`,
     `(PENDING until Square confirms the payment.)`,
     '',
-    `${kind === 'kids' ? 'Kids & camps' : 'Catering'}: ${item.name} x ${quote.heads}`,
+    `${kind === 'kids' ? 'Kids catering' : 'Catering'}: ${item.name} x ${quote.heads}`,
     `Order total: ${formatMoney(quote.orderTotalCents)}`,
     `Collecting now: ${formatMoney(quote.chargeCents)}`,
     '',
