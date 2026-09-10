@@ -5,7 +5,7 @@ export default function OrderDocket() {
         className="relative w-[300px] bg-paper text-ink rounded-[2px] pt-7 pb-8 px-[26px] rotate-3
           shadow-[8px_14px_0_rgba(0,0,0,0.25)]
           before:content-[''] before:absolute before:-top-2 before:left-0 before:right-0 before:h-4
-          before:bg-[radial-gradient(circle,_#232B1D_4px,_transparent_4.2px)]
+          before:bg-[radial-gradient(circle,_#FFF0CB_4px,_transparent_4.2px)]
           before:[background-size:22px_16px] before:[background-position:8px_0] before:bg-repeat-x"
       >
         <div className="absolute -top-[22px] left-1/2 -translate-x-1/2 w-11 h-[26px] rounded-[3px] bg-[#8B8578] shadow-[0_3px_4px_rgba(0,0,0,0.3)]">

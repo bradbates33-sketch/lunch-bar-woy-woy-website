@@ -174,7 +174,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
 
   if (done) {
     return (
-      <div className="bg-paper text-ink rounded-[3px] p-8">
+      <div className="bg-paper text-ink border border-paper-line rounded-[3px] p-8">
         <div className="inline-block font-mono text-[11px] font-bold tracking-[2px] uppercase text-chili border-[1.5px] border-chili px-2.5 py-1 rounded-[2px] -rotate-[3deg] mb-5">
           {done.mode === 'redirect' ? 'Redirecting to payment' : 'Enquiry sent'}
         </div>
@@ -205,9 +205,9 @@ export default function CateringForm({ kind, packages, usingFallback }) {
 
   return (
     <div className="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
-      <form onSubmit={handleSubmit} noValidate className="bg-paper text-ink rounded-[3px] p-6 sm:p-8 space-y-9">
+      <form onSubmit={handleSubmit} noValidate className="bg-paper text-ink border border-paper-line rounded-[3px] p-6 sm:p-8 space-y-9">
         {usingFallback && (
-          <p className="font-mono text-[12px] text-[#6b6552] bg-[#efe7d0] border border-dashed border-paper-line rounded-[2px] px-3 py-2">
+          <p className="font-mono text-[12px] text-[#6b6552] bg-paper-dim border border-dashed border-paper-line rounded-[2px] px-3 py-2">
             Indicative pricing — final prices are confirmed on your quote.
           </p>
         )}
@@ -224,7 +224,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
                 <label
                   key={p.id}
                   className={`block cursor-pointer rounded-[3px] border px-4 py-3.5 transition-colors ${
-                    active ? 'border-chili bg-[#fbf3e6] shadow-[inset_3px_0_0_#C43B24]' : 'border-paper-line hover:border-[#8B8578]'
+                    active ? 'border-chili bg-[#EEF3E3] shadow-[inset_3px_0_0_#4C7031]' : 'border-paper-line hover:border-[#8B8578]'
                   }`}
                 >
                   <input
@@ -328,7 +328,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
       </form>
 
       {/* docket */}
-      <aside className="bg-paper text-ink rounded-[3px] p-6 lg:sticky lg:top-24">
+      <aside className="bg-paper text-ink border border-paper-line rounded-[3px] p-6 lg:sticky lg:top-24">
         <div className="font-mono font-bold text-[13px] tracking-wide uppercase pb-3 border-b-2 border-ink mb-4">
           Your docket
         </div>
@@ -354,7 +354,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
         </p>
 
         {status && (
-          <p className={`mt-3 font-mono text-[12px] ${status.type === 'error' ? 'text-chili-dark' : 'text-[#5c7a3a]'}`}>
+          <p className={`mt-3 font-mono text-[12px] ${status.type === 'error' ? 'text-chili-dark' : 'text-chili'}`}>
             {status.message}
           </p>
         )}
@@ -369,7 +369,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
 }
 
 const inputCls =
-  'w-full font-sans text-[14px] text-ink bg-white border border-paper-line rounded-[2px] px-3 py-2 outline-none focus:border-chili focus:ring-1 focus:ring-chili';
+  'w-full font-sans text-[14px] text-ink bg-[#FBF4DE] border border-paper-line rounded-[2px] px-3 py-2 outline-none focus:border-chili focus:ring-1 focus:ring-chili';
 
 function Field({ label, hint, error, children }) {
   return (

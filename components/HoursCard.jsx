@@ -1,8 +1,8 @@
 export default function HoursCard() {
   return (
-    <div className="bg-paper text-ink rounded-[3px] pt-[30px] px-[30px] pb-[26px]">
+    <div className="bg-paper text-ink border border-paper-line rounded-[3px] pt-[30px] px-[30px] pb-[26px]">
       <h3 className="font-mono text-[13px] tracking-wide uppercase mb-[18px] flex items-center gap-2.5">
-        <span className="w-2 h-2 rounded-full bg-[#6E9B4A] shadow-[0_0_0_3px_rgba(110,155,74,0.25)]" />
+        <span className="w-2 h-2 rounded-full bg-chili shadow-[0_0_0_3px_rgba(76,112,49,0.22)]" />
         Open today until 3:00pm
       </h3>
 

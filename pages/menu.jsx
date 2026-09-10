@@ -28,13 +28,13 @@ export default function Menu({ categories }) {
       <Header />
 
       <section className="max-w-[1120px] mx-auto px-8 pt-14 pb-8">
-        <div className="font-mono text-xs tracking-[2px] uppercase text-mustard mb-2.5">
+        <div className="font-mono text-xs tracking-[2px] uppercase text-chili mb-2.5">
           Full menu
         </div>
-        <h1 className="font-mono font-bold text-[32px] text-paper mb-3">
+        <h1 className="font-mono font-bold text-[32px] text-ink mb-3">
           Everything on the board
         </h1>
-        <p className="text-paper/60 max-w-[520px]">
+        <p className="text-ink/70 max-w-[520px]">
           Browse the full menu and add items to your order. Checkout is handled securely
           through Square.
         </p>
@@ -52,7 +52,7 @@ export default function Menu({ categories }) {
       ) : (
         categories.map((category) => (
           <section key={category.id} className="max-w-[1120px] mx-auto px-8 pb-16">
-            <h2 className="font-mono font-bold text-xl text-paper mb-6 pb-3 border-b border-paper/10">
+            <h2 className="font-mono font-bold text-xl text-ink mb-6 pb-3 border-b border-ink/15">
               {category.name}
             </h2>
             <div className="grid md:grid-cols-3 gap-[22px]">

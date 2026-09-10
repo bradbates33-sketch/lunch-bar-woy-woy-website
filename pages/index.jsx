@@ -35,16 +35,16 @@ export default function Home({ items }) {
       {/* Hero */}
       <section className="max-w-[1120px] mx-auto grid md:grid-cols-[1.05fr_0.95fr] gap-14 items-center px-8 pt-10 md:pt-[72px] pb-14 md:pb-24">
         <div>
-          <div className="flex items-center gap-2.5 font-mono text-xs tracking-[2px] uppercase text-mustard mb-5">
-            <span className="w-[7px] h-[7px] rounded-full bg-[#6E9B4A] shadow-[0_0_0_3px_rgba(110,155,74,0.2)]" />
+          <div className="flex items-center gap-2.5 font-mono text-xs tracking-[2px] uppercase text-chili mb-5">
+            <span className="w-[7px] h-[7px] rounded-full bg-chili shadow-[0_0_0_3px_rgba(76,112,49,0.22)]" />
             Open now &middot; Pickup ready in 15 min
           </div>
-          <h1 className="font-mono font-bold text-[36px] sm:text-[44px] leading-[1.15] tracking-tight text-paper mb-[22px]">
+          <h1 className="font-mono font-bold text-[36px] sm:text-[44px] leading-[1.15] tracking-tight text-ink mb-[22px]">
             Fresh, fast,
             <br />
             <span className="text-chili">local.</span>
           </h1>
-          <p className="text-[17px] text-paper/60 max-w-[460px] mb-[34px]">
+          <p className="text-[17px] text-ink/70 max-w-[460px] mb-[34px]">
             Sandwiches, rolls and coffee made to order on the waterfront side of Woy Woy. Order
             ahead and skip the queue.
           </p>
@@ -57,7 +57,7 @@ export default function Home({ items }) {
             </a>
             <a
               href="/menu"
-              className="font-mono text-[13px] tracking-wide uppercase text-paper border-b border-paper-line pb-[3px] hover:border-mustard hover:text-mustard transition-colors"
+              className="font-mono text-[13px] tracking-wide uppercase text-ink border-b border-ink/30 pb-[3px] hover:border-chili hover:text-chili transition-colors"
             >
               View menu
             </a>
@@ -67,8 +67,8 @@ export default function Home({ items }) {
       </section>
 
       {/* Info strip */}
-      <div className="bg-bg-panel border-y border-paper/10">
-        <div className="max-w-[1120px] mx-auto px-8 py-5 flex flex-wrap gap-7 justify-between items-center font-mono text-[13px] text-paper/60">
+      <div className="bg-bg-panel border-y border-black/10">
+        <div className="max-w-[1120px] mx-auto px-8 py-5 flex flex-wrap gap-7 justify-between items-center font-mono text-[13px] text-paper/70">
           <div>
             <strong className="text-paper font-bold">Open today</strong>&nbsp;7:00am – 3:00pm
           </div>
@@ -76,7 +76,7 @@ export default function Home({ items }) {
           <div>(02) 4341 0000</div>
           <a
             href="#location"
-            className="border-b border-paper-line pb-[3px] hover:border-mustard hover:text-mustard transition-colors"
+            className="border-b border-paper/40 pb-[3px] hover:border-paper hover:text-paper transition-colors"
           >
             Get directions
           </a>
@@ -87,12 +87,12 @@ export default function Home({ items }) {
       <section className="max-w-[1120px] mx-auto px-8 py-16 md:py-[88px]" id="menu">
         <div className="flex justify-between items-end flex-wrap gap-4 mb-11">
           <div>
-            <div className="font-mono text-xs tracking-[2px] uppercase text-mustard mb-2.5">On the board</div>
-            <h2 className="font-mono font-bold text-[28px] text-paper">Today&apos;s favourites</h2>
+            <div className="font-mono text-xs tracking-[2px] uppercase text-chili mb-2.5">On the board</div>
+            <h2 className="font-mono font-bold text-[28px] text-ink">Today&apos;s favourites</h2>
           </div>
           <a
             href="/menu"
-            className="font-mono text-[13px] tracking-wide uppercase text-paper border-b border-paper-line pb-[3px] hover:border-mustard hover:text-mustard transition-colors"
+            className="font-mono text-[13px] tracking-wide uppercase text-ink border-b border-ink/30 pb-[3px] hover:border-chili hover:text-chili transition-colors"
           >
             Full menu →
           </a>
@@ -140,15 +140,15 @@ export default function Home({ items }) {
             </p>
             <div className="flex gap-10 mt-8 font-mono">
               <div>
-                <div className="text-[26px] font-bold text-mustard">7am</div>
+                <div className="text-[26px] font-bold text-paper">7am</div>
                 <div className="text-[11px] tracking-wide uppercase text-paper/60 mt-1">First roll out</div>
               </div>
               <div>
-                <div className="text-[26px] font-bold text-mustard">15 min</div>
+                <div className="text-[26px] font-bold text-paper">15 min</div>
                 <div className="text-[11px] tracking-wide uppercase text-paper/60 mt-1">Avg. pickup time</div>
               </div>
               <div>
-                <div className="text-[26px] font-bold text-mustard">100%</div>
+                <div className="text-[26px] font-bold text-paper">100%</div>
                 <div className="text-[11px] tracking-wide uppercase text-paper/60 mt-1">Locally owned</div>
               </div>
             </div>

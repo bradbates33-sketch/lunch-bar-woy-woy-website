@@ -8,16 +8,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "bg-dark": "#232B1D",
-        "bg-panel": "#2C3524",
-        "bg-panel-2": "#333D28",
-        paper: "#F4EEDD",
-        "paper-dim": "#E7DFC7",
-        "paper-line": "#C9BF9F",
-        chili: "#C43B24",
-        "chili-dark": "#9C2E1B",
-        mustard: "#E2A130",
-        ink: "#20261C",
+        // Brand: cream ground + green. "bg-dark" is the page background
+        // (kept the name so existing classes still map correctly).
+        "bg-dark": "#FFF0CB", // page background — cream
+        "bg-panel": "#4C7031", // green feature bands (cream text sits on these)
+        "bg-panel-2": "#3D5C27", // deeper green inset
+        paper: "#FEFBF0", // raised card surface + cream text on green
+        "paper-dim": "#F2E7C4",
+        "paper-line": "#D8C795", // hairline / dashed rules on cards
+        chili: "#4C7031", // primary action + accent — green
+        "chili-dark": "#3A5626", // hover / price text
+        mustard: "#C9992F", // warm gold — spare accent, not currently used in layout
+        ink: "#273418", // primary dark text — near-black green
       },
       fontFamily: {
         mono: ['"Space Mono"', "monospace"],

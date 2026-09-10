@@ -5,10 +5,10 @@ export default function MenuCard({ item }) {
 
   return (
     <div
-      className="group relative bg-paper text-ink rounded-[3px] pt-[22px] px-[22px] pb-6
-        transition-transform hover:-translate-y-1 hover:shadow-[0_10px_0_rgba(0,0,0,0.18)]
+      className="group relative bg-paper text-ink border border-paper-line rounded-[3px] pt-[22px] px-[22px] pb-6
+        transition-transform hover:-translate-y-1 hover:shadow-[0_10px_0_rgba(39,52,24,0.12)]
         before:content-[''] before:absolute before:-top-1.5 before:left-0 before:right-0 before:h-3
-        before:bg-[radial-gradient(circle,_#232B1D_3px,_transparent_3.2px)]
+        before:bg-[radial-gradient(circle,_#FFF0CB_3px,_transparent_3.2px)]
         before:[background-size:18px_12px] before:[background-position:9px_0] before:bg-repeat-x"
     >
       <div className="font-mono text-[11px] text-[#948d76] tracking-wide mb-2.5">No. {item.number}</div>

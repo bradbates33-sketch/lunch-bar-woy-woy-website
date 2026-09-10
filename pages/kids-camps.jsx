@@ -33,20 +33,20 @@ export default function KidsCamps({ packages, usingFallback }) {
       <Header />
 
       <section className="max-w-[1120px] mx-auto px-8 pt-14 pb-8">
-        <div className="font-mono text-xs tracking-[2px] uppercase text-mustard mb-2.5">Kids &amp; Camps</div>
-        <h1 className="font-mono font-bold text-[32px] text-paper mb-3">Lunch, handled for camp day</h1>
-        <p className="text-paper/60 max-w-[540px]">
+        <div className="font-mono text-xs tracking-[2px] uppercase text-chili mb-2.5">Kids &amp; Camps</div>
+        <h1 className="font-mono font-bold text-[32px] text-ink mb-3">Lunch, handled for camp day</h1>
+        <p className="text-ink/70 max-w-[540px]">
           Individually packed, labelled lunches for junior sport camps, school groups and kids&apos;
           parties. Pick a lunch, tell us the headcount, pay by card.
         </p>
-        <div className="mt-5 flex flex-wrap gap-2.5 font-mono text-[11px] text-paper/60">
+        <div className="mt-5 flex flex-wrap gap-2.5 font-mono text-[11px] text-ink/70">
           {['No minimum order', `${CATERING.noticeHours} hrs notice`, 'Nut-free as standard', 'Delivered chilled', 'Pay by card'].map((t) => (
-            <span key={t} className="border border-paper/20 rounded-full px-3 py-1">{t}</span>
+            <span key={t} className="border border-ink/20 rounded-full px-3 py-1">{t}</span>
           ))}
         </div>
-        <p className="mt-4 font-mono text-[12px] text-paper/50">
+        <p className="mt-4 font-mono text-[12px] text-ink/60">
           Platters and office catering?{' '}
-          <a href="/catering" className="text-mustard border-b border-mustard/40 hover:border-mustard">Catering page →</a>
+          <a href="/catering" className="text-chili border-b border-chili/40 hover:border-chili">Catering page →</a>
         </p>
       </section>
 

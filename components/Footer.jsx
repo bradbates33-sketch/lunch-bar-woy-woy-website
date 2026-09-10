@@ -3,7 +3,7 @@ export default function Footer() {
     <footer className="bg-ink px-8 pt-12 pb-7">
       <div className="max-w-[1120px] mx-auto flex flex-wrap justify-between gap-8 pb-7 border-b border-paper/10">
         <div>
-          <h4 className="font-mono text-[11px] tracking-[1.5px] uppercase text-mustard mb-3.5">
+          <h4 className="font-mono text-[11px] tracking-[1.5px] uppercase text-paper/70 mb-3.5">
             Lunch Bar Woy Woy
           </h4>
           <p className="text-[13.5px] text-paper/60 leading-relaxed">
@@ -13,7 +13,7 @@ export default function Footer() {
           </p>
         </div>
         <div>
-          <h4 className="font-mono text-[11px] tracking-[1.5px] uppercase text-mustard mb-3.5">Menu</h4>
+          <h4 className="font-mono text-[11px] tracking-[1.5px] uppercase text-paper/70 mb-3.5">Menu</h4>
           <a href="#menu" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
             Rolls &amp; sandwiches
           </a>
@@ -25,7 +25,7 @@ export default function Footer() {
           </a>
         </div>
         <div>
-          <h4 className="font-mono text-[11px] tracking-[1.5px] uppercase text-mustard mb-3.5">Shop</h4>
+          <h4 className="font-mono text-[11px] tracking-[1.5px] uppercase text-paper/70 mb-3.5">Shop</h4>
           <a href="#about" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
             Our story
           </a>
@@ -37,7 +37,7 @@ export default function Footer() {
           </a>
         </div>
         <div>
-          <h4 className="font-mono text-[11px] tracking-[1.5px] uppercase text-mustard mb-3.5">Follow</h4>
+          <h4 className="font-mono text-[11px] tracking-[1.5px] uppercase text-paper/70 mb-3.5">Follow</h4>
           <a href="#" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
             Instagram
           </a>

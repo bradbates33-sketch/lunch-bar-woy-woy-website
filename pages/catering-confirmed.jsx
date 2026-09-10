@@ -18,14 +18,14 @@ export default function CateringConfirmed() {
       <Header />
 
       <section className="max-w-[600px] mx-auto px-8 py-24 text-center">
-        <div className="font-mono text-xs tracking-[2px] uppercase text-mustard mb-4">Fired ✓</div>
-        <h1 className="font-mono font-bold text-[32px] text-paper mb-4">Catering order confirmed</h1>
-        {ref && <p className="font-mono text-sm text-paper/60 mb-4">Ref {ref}</p>}
-        <p className="text-paper/60 mb-8">
+        <div className="font-mono text-xs tracking-[2px] uppercase text-chili mb-4">Fired ✓</div>
+        <h1 className="font-mono font-bold text-[32px] text-ink mb-4">Catering order confirmed</h1>
+        {ref && <p className="font-mono text-sm text-ink/60 mb-4">Ref {ref}</p>}
+        <p className="text-ink/70 mb-8">
           Thanks — your payment is in and we&apos;ve got your order. Check your email for a receipt
           from Square. We&apos;ll be in touch within one business day to confirm the date, numbers
           and menu. Any changes? Email{' '}
-          <a href="mailto:hello@lunchbarbakehouse.com.au" className="text-mustard">hello@lunchbarbakehouse.com.au</a>.
+          <a href="mailto:hello@lunchbarbakehouse.com.au" className="text-chili underline">hello@lunchbarbakehouse.com.au</a>.
         </p>
         <a
           href="/"
