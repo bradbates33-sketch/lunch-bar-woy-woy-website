@@ -63,7 +63,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
 
   function validate() {
     const next = {};
-    if (!selected) next.package = isKids ? 'Pick a lunch.' : 'Choose a package.';
+    if (!selected) next.package = 'Choose a package.';
     const heads = Math.floor(Number(headcount));
     const min = isKids ? 1 : CATERING.minPlatterGuests;
     if (!Number.isFinite(heads) || heads < min) {
@@ -215,9 +215,9 @@ export default function CateringForm({ kind, packages, usingFallback }) {
         {/* 1. package */}
         <fieldset className="space-y-3">
           <legend className="font-mono text-[11px] tracking-[2px] uppercase text-[#948d76] mb-1">
-            01 — {isKids ? 'Pick a lunch' : 'Choose a package'}
+            01 — Choose a package
           </legend>
-          <div className="space-y-2.5" role="radiogroup" aria-label={isKids ? 'Lunch' : 'Package'}>
+          <div className="space-y-2.5" role="radiogroup" aria-label="Package">
             {packages.map((p) => {
               const active = p.id === selectedId;
               return (
@@ -265,7 +265,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
             <Field label="Event date" error={errors.eventDate} hint={`At least ${CATERING.noticeHours} hours ahead.`}>
               <input type="date" min={minDateISO()} value={form.eventDate} onChange={set('eventDate')} className={inputCls} />
             </Field>
-            <Field label={isKids ? 'Lunch-break time' : 'Delivery / ready time'} error={errors.eventTime}>
+            <Field label="Delivery / ready time" error={errors.eventTime}>
               <input type="time" value={form.eventTime} onChange={set('eventTime')} className={inputCls} />
             </Field>
             <Field label="Short on time? (optional)">
@@ -334,7 +334,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
         </div>
         {!selected || !headcount || !quote ? (
           <p className="font-mono text-[12px] text-[#6b6552]">
-            {!selected ? `No ${isKids ? 'lunch' : 'package'} chosen yet.` : 'Add your headcount to see the total.'}
+            {!selected ? 'No package chosen yet.' : 'Add your headcount to see the total.'}
           </p>
         ) : (
           <div className="font-mono text-[13px] space-y-2">
@@ -349,7 +349,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
 
         <p className="mt-4 pt-3 border-t border-dashed border-paper-line text-[12px] leading-relaxed text-[#6b6552]">
           {isKids
-            ? 'Pay in full by card on the next screen (Square). We email a receipt and pack every lunch to your headcount.'
+            ? 'Pay in full by card on the next screen (Square). We email a receipt and pack every order to your headcount.'
             : `Pay the ${CATERING.depositPercent}% deposit by card on the next screen (Square). We confirm date & numbers; the balance is invoiced before your event.`}
         </p>
 
