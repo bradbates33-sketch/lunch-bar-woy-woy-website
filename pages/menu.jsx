@@ -3,12 +3,13 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import MenuCard from '../components/MenuCard';
 import { fetchMenu } from '../lib/square';
+import { curateMenu } from '../lib/menuConfig';
 
 export async function getStaticProps() {
   const { categories } = await fetchMenu();
 
   return {
-    props: { categories },
+    props: { categories: curateMenu(categories) },
     // Re-check Square at most every 5 minutes.
     revalidate: 300,
   };

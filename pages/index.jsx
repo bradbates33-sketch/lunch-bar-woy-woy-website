@@ -4,14 +4,15 @@ import Footer from '../components/Footer';
 import OrderDocket from '../components/OrderDocket';
 import MenuCard from '../components/MenuCard';
 import HoursCard from '../components/HoursCard';
-import { fetchMenuItems } from '../lib/square';
+import { fetchMenu } from '../lib/square';
+import { curateMenu, pickFeatured } from '../lib/menuConfig';
 
 export async function getStaticProps() {
-  const allItems = await fetchMenuItems();
+  const { categories } = await fetchMenu();
 
   return {
     props: {
-      items: allItems.slice(0, 3),
+      items: pickFeatured(curateMenu(categories), 3),
     },
     // Re-fetch from Square at most every 5 minutes, so pricing/availability
     // stays current without hitting the API on every single page view.
