@@ -136,13 +136,13 @@ export default function Home({ items }) {
             />
           </div>
           <div>
-            <p className="text-lg text-paper mb-[18px]">Woy Woy born, family run since day one.</p>
+            <p className="text-lg text-paper mb-[18px]">Family run, fresh every morning.</p>
             <p className="text-base text-paper/60 max-w-[480px] mb-[18px]">
               We&apos;ve been slinging rolls and coffee to commuters, tradies and locals for
               years — no drive-thru, no shortcuts, just a proper lunch bar on Blackwall Road.
             </p>
             <p className="text-base text-paper/60 max-w-[480px] mb-[18px]">
-              Order ahead on your way past the station and it&apos;ll be ready when you walk in.
+              Order ahead and skip the queue — it&apos;ll be ready and waiting the moment you walk in.
             </p>
             <div className="flex gap-10 mt-8 font-mono">
               <div>
