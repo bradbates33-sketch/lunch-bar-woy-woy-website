@@ -139,7 +139,7 @@ export default function Home({ items }) {
             <p className="text-lg text-paper mb-[18px]">Family run, fresh every morning.</p>
             <p className="text-base text-paper/60 max-w-[480px] mb-[18px]">
               We&apos;ve been slinging rolls and coffee to commuters, tradies and locals for
-              years — no drive-thru, no shortcuts, just a proper lunch bar on Blackwall Road.
+              years — no drive-thru, no shortcuts, just proper service with a smile on Blackwall Road.
             </p>
             <p className="text-base text-paper/60 max-w-[480px] mb-[18px]">
               Order ahead and skip the queue — it&apos;ll be ready and waiting the moment you walk in.
