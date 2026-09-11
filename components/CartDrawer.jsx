@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useCart } from './CartContext';
 
+const money = (cents) => `$${(cents / 100).toFixed(2)}`;
+
 export default function CartDrawer() {
   const { items, updateQuantity, removeItem, subtotal, isOpen, setIsOpen } = useCart();
   const [checkingOut, setCheckingOut] = useState(false);
@@ -14,7 +16,11 @@ export default function CartDrawer() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: items.map((i) => ({ id: i.id, quantity: i.quantity })),
+          items: items.map((l) => ({
+            variationId: l.variationId,
+            quantity: l.quantity,
+            modifierIds: (l.modifiers || []).map((m) => m.id),
+          })),
         }),
       });
       const data = await response.json();
@@ -55,42 +61,50 @@ export default function CartDrawer() {
               Your docket is empty.
             </p>
           ) : (
-            items.map((item) => (
-              <div
-                key={item.id}
-                className="flex justify-between items-start mb-5 pb-5 border-b border-dashed border-paper-line last:border-b-0"
-              >
-                <div className="flex-1">
-                  <div className="font-sans font-bold text-sm mb-1">{item.name}</div>
-                  <div className="font-mono text-xs text-chili-dark mb-2">
-                    {item.price ? `$${item.price}` : 'POA'}
-                  </div>
-                  <div className="flex items-center gap-3 font-mono text-xs">
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="w-6 h-6 flex items-center justify-center border border-ink rounded-[2px] hover:bg-ink hover:text-paper"
-                      aria-label="Decrease quantity"
-                    >
-                      −
-                    </button>
-                    <span>{item.quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="w-6 h-6 flex items-center justify-center border border-ink rounded-[2px] hover:bg-ink hover:text-paper"
-                      aria-label="Increase quantity"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-                <button
-                  onClick={() => removeItem(item.id)}
-                  className="font-mono text-[11px] text-[#948d76] hover:text-chili-dark ml-3"
+            items.map((line) => {
+              const detail = [line.variationLabel, ...(line.modifiers || []).map((m) => m.name)]
+                .filter(Boolean)
+                .join(' · ');
+              return (
+                <div
+                  key={line.key}
+                  className="flex justify-between items-start mb-5 pb-5 border-b border-dashed border-paper-line last:border-b-0"
                 >
-                  Remove
-                </button>
-              </div>
-            ))
+                  <div className="flex-1">
+                    <div className="font-sans font-bold text-sm mb-0.5">{line.itemName}</div>
+                    {detail && (
+                      <div className="text-[11px] text-[#6b6552] mb-1.5 leading-snug">{detail}</div>
+                    )}
+                    <div className="font-mono text-xs text-chili-dark mb-2">
+                      {money(line.unitPriceCents || 0)}
+                    </div>
+                    <div className="flex items-center gap-3 font-mono text-xs">
+                      <button
+                        onClick={() => updateQuantity(line.key, line.quantity - 1)}
+                        className="w-6 h-6 flex items-center justify-center border border-ink rounded-[2px] hover:bg-ink hover:text-paper"
+                        aria-label="Decrease quantity"
+                      >
+                        −
+                      </button>
+                      <span>{line.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(line.key, line.quantity + 1)}
+                        className="w-6 h-6 flex items-center justify-center border border-ink rounded-[2px] hover:bg-ink hover:text-paper"
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => removeItem(line.key)}
+                    className="font-mono text-[11px] text-[#948d76] hover:text-chili-dark ml-3"
+                  >
+                    Remove
+                  </button>
+                </div>
+              );
+            })
           )}
         </div>
 

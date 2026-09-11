@@ -1,25 +1,31 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 const CartContext = createContext(null);
-const STORAGE_KEY = 'lbww-cart';
+const STORAGE_KEY = 'lbww-cart-v2';
+
+// A cart entry ("line") is one variation + a specific set of modifiers:
+//   { key, variationId, itemName, variationLabel, modifiers:[{id,name,priceCents}],
+//     unitPriceCents, quantity }
+// `key` identifies the line (same variation + same modifiers stacks quantity).
 
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  // Load any saved cart once, on first mount in the browser.
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved) setItems(JSON.parse(saved));
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) setItems(parsed.filter((l) => l && l.key && l.variationId));
+      }
     } catch (err) {
       console.error('Could not read saved cart:', err);
     }
     setLoaded(true);
   }, []);
 
-  // Persist on every change, once the initial load has happened.
   useEffect(() => {
     if (!loaded) return;
     try {
@@ -29,35 +35,56 @@ export function CartProvider({ children }) {
     }
   }, [items, loaded]);
 
-  function addItem(item) {
+  function addLine(line) {
     setItems((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
+      const existing = prev.find((l) => l.key === line.key);
       if (existing) {
-        return prev.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i));
+        return prev.map((l) =>
+          l.key === line.key ? { ...l, quantity: l.quantity + (line.quantity || 1) } : l,
+        );
       }
-      return [...prev, { ...item, quantity: 1 }];
+      return [...prev, { ...line, quantity: line.quantity || 1 }];
     });
     setIsOpen(true);
   }
 
-  function updateQuantity(id, quantity) {
+  // Convenience for items with no options — add the sole variation directly.
+  function addItem(item) {
+    const variationId = item.variationId || item.variations?.[0]?.id || item.id;
+    const unitPriceCents =
+      item.priceCents ??
+      item.variations?.[0]?.priceCents ??
+      Math.round(parseFloat(item.price || '0') * 100);
+    addLine({
+      key: variationId + '|',
+      variationId,
+      itemName: item.name,
+      variationLabel: '',
+      modifiers: [],
+      unitPriceCents,
+      quantity: 1,
+    });
+  }
+
+  function updateQuantity(key, quantity) {
     if (quantity <= 0) {
-      setItems((prev) => prev.filter((i) => i.id !== id));
+      setItems((prev) => prev.filter((l) => l.key !== key));
       return;
     }
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantity } : i)));
+    setItems((prev) => prev.map((l) => (l.key === key ? { ...l, quantity } : l)));
   }
 
-  function removeItem(id) {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+  function removeItem(key) {
+    setItems((prev) => prev.filter((l) => l.key !== key));
   }
 
-  const subtotal = items.reduce((sum, i) => sum + (parseFloat(i.price) || 0) * i.quantity, 0);
-  const count = items.reduce((sum, i) => sum + i.quantity, 0);
+  const subtotal =
+    items.reduce((sum, l) => sum + (l.unitPriceCents || 0) * l.quantity, 0) / 100;
+  const count = items.reduce((sum, l) => sum + l.quantity, 0);
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, updateQuantity, removeItem, subtotal, count, isOpen, setIsOpen }}
+      value={{ items, addLine, addItem, updateQuantity, removeItem, subtotal, count, isOpen, setIsOpen }}
     >
       {children}
     </CartContext.Provider>

@@ -9,6 +9,23 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Cart is empty' });
   }
 
+  const lineItems = [];
+  for (const item of items) {
+    const catalogObjectId = String(item.variationId || item.id || '');
+    const quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
+    if (!catalogObjectId) {
+      return res.status(400).json({ error: 'Cart contains an invalid item' });
+    }
+    const line = { catalog_object_id: catalogObjectId, quantity: String(quantity) };
+    const modifierIds = Array.isArray(item.modifierIds)
+      ? item.modifierIds.filter(Boolean).map(String)
+      : [];
+    if (modifierIds.length) {
+      line.modifiers = modifierIds.map((id) => ({ catalog_object_id: id }));
+    }
+    lineItems.push(line);
+  }
+
   const token = process.env.SQUARE_ACCESS_TOKEN;
   const locationId = process.env.SQUARE_LOCATION_ID;
   const environment = process.env.SQUARE_ENVIRONMENT || 'production';
@@ -20,11 +37,6 @@ export default async function handler(req, res) {
   const baseUrl = environment === 'sandbox'
     ? 'https://connect.squareupsandbox.com'
     : 'https://connect.squareup.com';
-
-  const lineItems = items.map((item) => ({
-    catalog_object_id: item.id,
-    quantity: String(item.quantity),
-  }));
 
   const origin = req.headers.origin || `https://${req.headers.host}`;
 
