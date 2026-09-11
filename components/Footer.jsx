@@ -38,10 +38,20 @@ export default function Footer() {
         </div>
         <div>
           <h4 className="font-mono text-[11px] tracking-[1.5px] uppercase text-paper/70 mb-3.5">Follow</h4>
-          <a href="#" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
+          <a
+            href="https://www.instagram.com/lunchbar_woy_woy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-[13.5px] text-paper/60 hover:text-paper mb-2"
+          >
             Instagram
           </a>
-          <a href="#" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
+          <a
+            href="https://www.facebook.com/lunchbarbakehouse"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-[13.5px] text-paper/60 hover:text-paper mb-2"
+          >
             Facebook
           </a>
         </div>
