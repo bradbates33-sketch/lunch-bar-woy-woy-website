@@ -3,13 +3,24 @@ import { useCart } from './CartContext';
 
 const money = (cents) => `$${(cents / 100).toFixed(2)}`;
 
+function minPickupTime() {
+  const d = new Date(Date.now() + 15 * 60 * 1000);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
 export default function CartDrawer() {
   const { items, updateQuantity, removeItem, subtotal, isOpen, setIsOpen } = useCart();
   const [checkingOut, setCheckingOut] = useState(false);
   const [error, setError] = useState('');
+  const [pickupChoice, setPickupChoice] = useState('asap'); // "asap" | "time"
+  const [pickupTimeValue, setPickupTimeValue] = useState('');
 
   async function handleCheckout() {
     setError('');
+    if (pickupChoice === 'time' && !pickupTimeValue) {
+      setError('Choose a pickup time, or pick ASAP.');
+      return;
+    }
     setCheckingOut(true);
     try {
       const response = await fetch('/api/create-checkout', {
@@ -21,6 +32,7 @@ export default function CartDrawer() {
             quantity: l.quantity,
             modifierIds: (l.modifiers || []).map((m) => m.id),
           })),
+          pickupTime: pickupChoice === 'asap' ? 'asap' : pickupTimeValue,
         }),
       });
       const data = await response.json();
@@ -110,6 +122,43 @@ export default function CartDrawer() {
 
         {items.length > 0 && (
           <div className="px-6 py-5 border-t border-dashed border-paper-line">
+            <div className="mb-4">
+              <div className="font-mono text-[11px] tracking-wide uppercase text-[#6b6552] mb-2">
+                Pickup time
+              </div>
+              <div className="flex flex-col gap-2 font-mono text-[13px]">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="pickup-time"
+                    checked={pickupChoice === 'asap'}
+                    onChange={() => setPickupChoice('asap')}
+                    className="accent-chili"
+                  />
+                  ASAP (ready in ~15 min)
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="pickup-time"
+                    checked={pickupChoice === 'time'}
+                    onChange={() => setPickupChoice('time')}
+                    className="accent-chili"
+                  />
+                  Choose a time
+                </label>
+              </div>
+              {pickupChoice === 'time' && (
+                <input
+                  type="time"
+                  min={minPickupTime()}
+                  value={pickupTimeValue}
+                  onChange={(e) => setPickupTimeValue(e.target.value)}
+                  className="mt-2 w-full font-sans text-sm text-ink bg-[#FBF4DE] border border-paper-line rounded-[2px] px-3 py-2 outline-none focus:border-chili focus:ring-1 focus:ring-chili"
+                />
+              )}
+            </div>
+
             <div className="flex justify-between font-mono font-bold text-sm mb-4">
               <span>Subtotal</span>
               <span>${subtotal.toFixed(2)}</span>

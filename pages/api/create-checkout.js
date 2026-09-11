@@ -1,13 +1,26 @@
+function formatPickupNote(pickupTime) {
+  if (!pickupTime || pickupTime === 'asap') return 'Pickup: ASAP (ready in ~15 min)';
+  const m = String(pickupTime).match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return 'Pickup: ASAP (ready in ~15 min)';
+  const h = Number(m[1]);
+  const min = m[2];
+  const period = h >= 12 ? 'pm' : 'am';
+  const h12 = ((h + 11) % 12) + 1;
+  return `Pickup: ${h12}:${min}${period}`;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { items } = req.body || {};
+  const { items, pickupTime } = req.body || {};
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Cart is empty' });
   }
+
+  const pickupNote = formatPickupNote(pickupTime);
 
   const lineItems = [];
   for (const item of items) {
@@ -53,6 +66,7 @@ export default async function handler(req, res) {
         order: {
           location_id: locationId,
           line_items: lineItems,
+          note: pickupNote,
         },
         checkout_options: {
           redirect_url: `${origin}/order-confirmed`,
