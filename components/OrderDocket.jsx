@@ -26,21 +26,21 @@ export default function OrderDocket() {
         </div>
 
         <div className="flex justify-between text-[13.5px] mb-2">
-          <span>Chicken schnitzel roll</span>
-          <span className="font-mono text-chili-dark">x1</span>
+          <span>Large flat white</span>
+          <span className="font-mono text-chili-dark">$6.50</span>
         </div>
         <div className="flex justify-between text-[13.5px] mb-2">
-          <span>Flat white</span>
-          <span className="font-mono text-chili-dark">x1</span>
+          <span>Bacon &amp; egg roll</span>
+          <span className="font-mono text-chili-dark">$13.00</span>
         </div>
         <div className="flex justify-between text-[13.5px] mb-2">
-          <span>Hash brown, extra sauce</span>
-          <span className="font-mono text-chili-dark">x1</span>
+          <span>Croissant</span>
+          <span className="font-mono text-chili-dark">$6.00</span>
         </div>
 
         <div className="flex justify-between items-baseline mt-4 pt-3.5 border-t border-dashed border-paper-line font-mono font-bold text-sm">
           <span>Total</span>
-          <span>$18.50</span>
+          <span>$25.50</span>
         </div>
 
         <div className="inline-block mt-5 font-mono text-[11px] font-bold tracking-[2px] text-chili border-[1.5px] border-chili px-2.5 py-1 rounded-[2px] -rotate-[4deg]">
