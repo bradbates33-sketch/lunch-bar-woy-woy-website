@@ -26,7 +26,7 @@ export default function Catering({ packages, usingFallback }) {
         <title>Catering — Lunch Bar Woy Woy</title>
         <meta
           name="description"
-          content="Morning teas, working lunches and grazing tables for offices and gatherings. Order online, pay the deposit by card."
+          content="Sandwich platters, gourmet baguettes and salad bowls for offices and gatherings. Order online, pay the deposit by card."
         />
       </Head>
 
@@ -36,11 +36,12 @@ export default function Catering({ packages, usingFallback }) {
         <div className="font-mono text-xs tracking-[2px] uppercase text-chili mb-2.5">Catering</div>
         <h1 className="font-mono font-bold text-[32px] text-ink mb-3">Order catering by the docket</h1>
         <p className="text-ink/70 max-w-[540px]">
-          Morning teas, working lunches and grazing tables for offices, workshops and gatherings.
-          Fill in the docket, pay the {CATERING.depositPercent}% deposit by card, and we confirm the rest.
+          Sandwich packages, our signature Muffaletta baguette and salad bowls for offices,
+          workshops and gatherings. Fill in the docket, pay the {CATERING.depositPercent}% deposit
+          by card, and we confirm the rest.
         </p>
         <div className="mt-5 flex flex-wrap gap-2.5 font-mono text-[11px] text-ink/70">
-          {[`Min. ${CATERING.minPlatterGuests} guests`, `${CATERING.noticeHours} hrs notice`, `Delivery within ${CATERING.delivery.radiusKm} km`, `${CATERING.depositPercent}% deposit confirms`].map((t) => (
+          {[`Min. ${CATERING.minPlatterGuests} guests (sandwich packages)`, `${CATERING.noticeHours} hrs notice`, `Delivery within ${CATERING.delivery.radiusKm} km`, `${CATERING.depositPercent}% deposit confirms`].map((t) => (
             <span key={t} className="border border-ink/20 rounded-full px-3 py-1">{t}</span>
           ))}
         </div>

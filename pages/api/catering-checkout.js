@@ -4,7 +4,10 @@ import {
   priceCateringOrder,
   dollarsToCents,
   formatMoney,
+  unitForItem,
+  minQtyForItem,
   CATERING,
+  CATERING_ADDONS,
 } from '../../lib/catering';
 
 const SQUARE_VERSION = '2024-08-21';
@@ -18,6 +21,7 @@ export default async function handler(req, res) {
     kind,
     itemId,
     headcount,
+    addonIds,
     deliveryMethod,
     address,
     eventDate,
@@ -52,10 +56,27 @@ export default async function handler(req, res) {
     return res.status(422).json({ error: 'That package is no longer available — please reselect.' });
   }
   const unitPriceCents = dollarsToCents(item.price);
+  const unit = unitForItem(item);
+  const minQty = minQtyForItem(item, kind);
+
+  // Extras only apply to per-guest platter packages — same rule the form
+  // enforces client-side, re-checked here since this is the authoritative side.
+  const activeAddons =
+    kind !== 'kids' && unit !== 'bowl' && Array.isArray(addonIds)
+      ? CATERING_ADDONS.filter((a) => addonIds.includes(a.id))
+      : [];
 
   let quote;
   try {
-    quote = priceCateringOrder({ unitPriceCents, headcount, kind, deliveryMethod });
+    quote = priceCateringOrder({
+      unitPriceCents,
+      headcount,
+      kind,
+      deliveryMethod,
+      addonUnitCentsList: activeAddons.map((a) => dollarsToCents(a.price)),
+      minQty,
+      unit,
+    });
   } catch (err) {
     return res.status(422).json({ error: err.message });
   }
@@ -97,7 +118,8 @@ export default async function handler(req, res) {
     ref,
     `${eventDate || '?'} ${eventTime || ''}`.trim(),
     deliveryMethod === 'Delivery' ? `Deliver: ${address || '(address to follow)'}` : 'Pickup',
-    `${item.name} x ${quote.heads}`,
+    `${item.name} x ${quote.heads} ${isKids ? 'children' : unit === 'bowl' ? 'bowls' : 'guests'}`,
+    activeAddons.length ? `Extras: ${activeAddons.map((a) => a.name).join(', ')}` : '',
     customer.name,
     customer.org,
     customer.phone,
@@ -161,10 +183,12 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'Could not start checkout' });
     }
 
-    // Best-effort internal copy with the full details (Square's note is capped).
-    notifyKitchen({ ref, note, quote, item, customer, kind }).catch((err) =>
-      console.error('Catering notify failed:', err.message),
-    );
+    // Email a copy to the business — invoice framing for the deposit-based
+    // Catering flow, receipt framing for Kids Catering (paid in full).
+    emailOrderNotification({
+      ref, note, quote, item, customer, kind, unit, activeAddons,
+      eventDate, eventTime, deliveryMethod, address, dietary, notes,
+    }).catch((err) => console.error('Catering notify failed:', err.message));
 
     return res.status(200).json({
       url: data.payment_link.url,
@@ -178,24 +202,79 @@ export default async function handler(req, res) {
   }
 }
 
-async function notifyKitchen({ ref, note, quote, item, customer, kind }) {
+// This is the notification you actually asked for: an email to the business
+// with the order details. Catering & Kids Catering never hit the kitchen
+// printer (their line items aren't linked to catalog items/categories, so
+// printer routing has nothing to match) — this email is the record instead.
+//
+// Note on timing: this sends as soon as the customer is handed off to
+// Square's payment page, not once Square confirms the card went through
+// (that would need a Square webhook, which we don't have set up). For
+// Catering that's fine either way — it reads as an invoice. For Kids
+// Catering, in the rare case someone abandons payment, you'd still get the
+// email; cross-check Square if in doubt.
+async function emailOrderNotification({
+  ref,
+  note,
+  quote,
+  item,
+  customer,
+  kind,
+  unit,
+  activeAddons = [],
+  eventDate,
+  eventTime,
+  deliveryMethod,
+  address,
+  dietary,
+  notes,
+}) {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.ORDER_FROM_EMAIL;
   const to = process.env.ORDER_NOTIFY_EMAIL || CATERING.contactEmail;
   if (!key || !from) return;
 
-  const text = [
-    `Catering order ${ref} — customer sent to Square checkout.`,
-    `(PENDING until Square confirms the payment.)`,
+  const isKids = kind === 'kids';
+  const unitWord = isKids ? 'children' : unit === 'bowl' ? 'bowls' : 'guests';
+  const fmtDate = (str) => {
+    if (!str) return '?';
+    const p = str.split('-');
+    return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : str;
+  };
+
+  const lines = [
+    isKids
+      ? `KIDS CATERING RECEIPT — ${ref}`
+      : `CATERING INVOICE — ${ref}`,
     '',
-    `${kind === 'kids' ? 'Kids catering' : 'Catering'}: ${item.name} x ${quote.heads}`,
-    `Order total: ${formatMoney(quote.orderTotalCents)}`,
-    `Collecting now: ${formatMoney(quote.chargeCents)}`,
+    `${item.name} x ${quote.heads} ${unitWord} — ${formatMoney(quote.foodCents)}`,
+    ...activeAddons.map(
+      (a) => `${a.name} x ${quote.heads} guests — ${formatMoney(dollarsToCents(a.price) * quote.heads)}`,
+    ),
+    isKids
+      ? `Paid in full by card: ${formatMoney(quote.orderTotalCents)}`
+      : `Order total: ${formatMoney(quote.orderTotalCents)}`,
+  ];
+  if (!isKids) {
+    lines.push(
+      `Deposit paid by card: ${formatMoney(quote.chargeCents)}`,
+      `Balance due before the event: ${formatMoney(quote.orderTotalCents - quote.chargeCents)}`,
+    );
+  }
+  lines.push(
     '',
-    note.replace(/ \| /g, '\n'),
+    `Date/time: ${fmtDate(eventDate)} ${eventTime || ''}`.trim(),
+    deliveryMethod === 'Delivery' ? `Deliver to: ${address || '(address to follow)'}` : 'Pickup',
     '',
-    `Contact: ${customer.name} — ${customer.email}${customer.phone ? ' — ' + customer.phone : ''}`,
-  ].join('\n');
+    `Contact: ${customer.name}${customer.org ? ' — ' + customer.org : ''}`,
+    `         ${customer.email}${customer.phone ? ' — ' + customer.phone : ''}`,
+  );
+  if (dietary) lines.push('', `Dietary: ${dietary}`);
+  if (notes) lines.push('', `Notes: ${notes}`);
+  lines.push(
+    '',
+    `(Sent when the customer was handed off to Square to pay — check Square for payment confirmation.)`,
+  );
 
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -204,8 +283,8 @@ async function notifyKitchen({ ref, note, quote, item, customer, kind }) {
       from,
       to,
       reply_to: customer.email,
-      subject: `New catering order ${ref}`,
-      text,
+      subject: isKids ? `Kids Catering receipt — ${ref}` : `Catering invoice — ${ref}`,
+      text: lines.join('\n'),
     }),
   });
 }

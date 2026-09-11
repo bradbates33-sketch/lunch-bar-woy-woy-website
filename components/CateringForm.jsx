@@ -1,9 +1,12 @@
 import { useMemo, useState } from 'react';
 import {
   CATERING,
+  CATERING_ADDONS,
   priceCateringOrder,
   dollarsToCents,
   formatMoney,
+  unitForItem,
+  minQtyForItem,
 } from '../lib/catering';
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -25,6 +28,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
   const isKids = kind === 'kids';
   const [selectedId, setSelectedId] = useState('');
   const [headcount, setHeadcount] = useState('');
+  const [selectedAddonIds, setSelectedAddonIds] = useState([]);
   const [method, setMethod] = useState('Delivery');
   const [form, setForm] = useState({
     address: '',
@@ -44,8 +48,15 @@ export default function CateringForm({ kind, packages, usingFallback }) {
   const [done, setDone] = useState(null); // { mode: "redirect"|"email", ref }
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  const toggleAddon = (id) =>
+    setSelectedAddonIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
   const selected = packages.find((p) => p.id === selectedId) || null;
+  const unit = selected ? unitForItem(selected) : 'guest';
+  const minQty = selected ? minQtyForItem(selected, kind) : isKids ? 1 : CATERING.minPlatterGuests;
+  // Per-guest extras only make sense alongside a per-guest package.
+  const showAddons = !isKids && unit !== 'bowl';
+  const activeAddons = showAddons ? CATERING_ADDONS.filter((a) => selectedAddonIds.includes(a.id)) : [];
 
   const quote = useMemo(() => {
     if (!selected || !headcount) return null;
@@ -55,19 +66,21 @@ export default function CateringForm({ kind, packages, usingFallback }) {
         headcount,
         kind,
         deliveryMethod: method,
+        addonUnitCentsList: activeAddons.map((a) => dollarsToCents(a.price)),
+        minQty,
+        unit,
       });
     } catch {
       return null;
     }
-  }, [selected, headcount, kind, method]);
+  }, [selected, headcount, kind, method, activeAddons, minQty, unit]);
 
   function validate() {
     const next = {};
     if (!selected) next.package = 'Choose a package.';
     const heads = Math.floor(Number(headcount));
-    const min = isKids ? 1 : CATERING.minPlatterGuests;
-    if (!Number.isFinite(heads) || heads < min) {
-      next.headcount = isKids ? 'Enter the number of children.' : `Enter ${min} or more.`;
+    if (!Number.isFinite(heads) || heads < minQty) {
+      next.headcount = isKids ? 'Enter the number of children.' : `Enter ${minQty} or more.`;
     }
     if (!form.eventDate) next.eventDate = 'Choose a date.';
     if (!form.eventTime) next.eventTime = 'Choose a time.';
@@ -81,15 +94,19 @@ export default function CateringForm({ kind, packages, usingFallback }) {
 
   function buildEmail(ref) {
     const o = quote;
+    const unitWord = isKids ? 'child' : unit === 'bowl' ? 'bowl' : 'guest';
     const lines = [
       `CATERING ENQUIRY — Lunch Bar`,
       `Ref: ${ref}`,
       '',
       `Date:      ${fmtDate(form.eventDate)}  at  ${form.eventTime || '-'}`,
-      `${isKids ? 'Children:' : 'Guests:  '}  ${Math.floor(Number(headcount)) || '?'}`,
+      `${isKids ? 'Children:' : unit === 'bowl' ? 'Bowls:   ' : 'Guests:  '}  ${Math.floor(Number(headcount)) || '?'}`,
       `Fulfilment: ${method}${method === 'Delivery' ? ` — ${form.address || '(address to follow)'}` : ''}`,
       '',
-      `Package:   ${selected ? selected.name : '(none selected)'}${selected?.price ? ` — $${selected.price}/${isKids ? 'child' : 'guest'}` : ''}`,
+      `Package:   ${selected ? selected.name : '(none selected)'}${selected?.price ? ` — $${selected.price}/${unitWord}` : ''}`,
+      ...(activeAddons.length
+        ? ['', 'Extras:', ...activeAddons.map((a) => `  ${a.name} — $${a.price}/guest`)]
+        : []),
       o ? `Estimated total: ${formatMoney(o.orderTotalCents)}${!isKids ? ` (deposit ${formatMoney(o.chargeCents)})` : ''}` : '',
       '',
       `Contact:   ${form.name}${form.org ? ` — ${form.org}` : ''}`,
@@ -140,6 +157,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
           kind,
           itemId: selected.id,
           headcount: Math.floor(Number(headcount)),
+          addonIds: activeAddons.map((a) => a.id),
           deliveryMethod: method,
           address: form.address.trim(),
           eventDate: form.eventDate,
@@ -170,7 +188,16 @@ export default function CateringForm({ kind, packages, usingFallback }) {
   }
 
   const money = (v) => (v ? `$${v}` : 'POA');
-  const unitWord = isKids ? 'child' : 'guest';
+  const unitWord = isKids ? 'child' : unit === 'bowl' ? 'bowl' : 'guest';
+  const headLabel = isKids ? 'Number of children' : unit === 'bowl' ? 'Number of bowls' : 'Number of guests';
+  const headHint = isKids
+    ? 'Priced per child. No minimum.'
+    : unit === 'bowl'
+    ? 'Each bowl serves approx. 4 people. No minimum.'
+    : `Per guest. Minimum ${minQty}.`;
+
+  let step = 0;
+  const stepNum = () => String(++step).padStart(2, '0');
 
   if (done) {
     return (
@@ -212,14 +239,15 @@ export default function CateringForm({ kind, packages, usingFallback }) {
           </p>
         )}
 
-        {/* 1. package */}
+        {/* package */}
         <fieldset className="space-y-3">
           <legend className="font-mono text-[11px] tracking-[2px] uppercase text-[#948d76] mb-1">
-            01 — Choose a package
+            {stepNum()} — Choose a package
           </legend>
           <div className="space-y-2.5" role="radiogroup" aria-label="Package">
             {packages.map((p) => {
               const active = p.id === selectedId;
+              const pUnit = unitForItem(p);
               return (
                 <label
                   key={p.id}
@@ -238,7 +266,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
                   <span className="flex justify-between items-baseline gap-3">
                     <span className="font-sans font-bold text-[15px]">{p.name}</span>
                     <span className="font-mono text-[13px] text-chili-dark whitespace-nowrap">
-                      {money(p.price)} <span className="text-[#948d76]">/ {unitWord}</span>
+                      {money(p.price)} <span className="text-[#948d76]">/ {isKids ? 'child' : pUnit}</span>
                     </span>
                   </span>
                   {p.description && (
@@ -251,15 +279,14 @@ export default function CateringForm({ kind, packages, usingFallback }) {
           {errors.package && <p className="font-mono text-[12px] text-chili-dark font-bold">{errors.package}</p>}
         </fieldset>
 
-        {/* 2. headcount + date */}
+        {/* headcount + date */}
         <fieldset className="space-y-4">
           <legend className="font-mono text-[11px] tracking-[2px] uppercase text-[#948d76] mb-1">
-            02 — Headcount &amp; date
+            {stepNum()} — Headcount &amp; date
           </legend>
           <div className="grid sm:grid-cols-2 gap-4">
-            <Field label={isKids ? 'Number of children' : 'Number of guests'} error={errors.headcount}
-              hint={isKids ? 'Priced per child. No minimum.' : `Per guest. Minimum ${CATERING.minPlatterGuests}.`}>
-              <input type="number" inputMode="numeric" min={isKids ? 1 : CATERING.minPlatterGuests} step="1"
+            <Field label={headLabel} error={errors.headcount} hint={headHint}>
+              <input type="number" inputMode="numeric" min={minQty} step="1"
                 value={headcount} onChange={(e) => setHeadcount(e.target.value)} className={inputCls} />
             </Field>
             <Field label="Event date" error={errors.eventDate} hint={`At least ${CATERING.noticeHours} hours ahead.`}>
@@ -274,10 +301,41 @@ export default function CateringForm({ kind, packages, usingFallback }) {
           </div>
         </fieldset>
 
-        {/* 3. delivery */}
+        {/* extras */}
+        {showAddons && (
+          <fieldset className="space-y-2">
+            <legend className="font-mono text-[11px] tracking-[2px] uppercase text-[#948d76] mb-1">
+              {stepNum()} — Extras <span className="text-[#b7ad8f]">(optional)</span>
+            </legend>
+            <div className="space-y-2">
+              {CATERING_ADDONS.map((a) => {
+                const on = selectedAddonIds.includes(a.id);
+                return (
+                  <label
+                    key={a.id}
+                    className={`flex items-start gap-3 rounded-[3px] border px-4 py-3 cursor-pointer transition-colors ${
+                      on ? 'border-chili bg-[#EEF3E3]' : 'border-paper-line hover:border-[#8B8578]'
+                    }`}
+                  >
+                    <input type="checkbox" checked={on} onChange={() => toggleAddon(a.id)} className="accent-chili mt-1" />
+                    <span className="flex-1">
+                      <span className="flex justify-between items-baseline gap-3">
+                        <span className="font-sans font-bold text-[14px]">{a.name}</span>
+                        <span className="font-mono text-[13px] text-chili-dark whitespace-nowrap">{money(a.price)} / guest</span>
+                      </span>
+                      <span className="block text-[13px] text-[#5c5744] mt-0.5">{a.description}</span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+        )}
+
+        {/* delivery */}
         <fieldset className="space-y-3">
           <legend className="font-mono text-[11px] tracking-[2px] uppercase text-[#948d76] mb-1">
-            03 — Delivery
+            {stepNum()} — Delivery
           </legend>
           <div className="flex gap-5 font-mono text-[13px]">
             {['Delivery', 'Pickup'].map((m) => (
@@ -299,10 +357,10 @@ export default function CateringForm({ kind, packages, usingFallback }) {
           )}
         </fieldset>
 
-        {/* 4. contact */}
+        {/* contact */}
         <fieldset className="space-y-4">
           <legend className="font-mono text-[11px] tracking-[2px] uppercase text-[#948d76] mb-1">
-            04 — Your details
+            {stepNum()} — Your details
           </legend>
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="Contact name" error={errors.name}>
@@ -340,7 +398,10 @@ export default function CateringForm({ kind, packages, usingFallback }) {
           </p>
         ) : (
           <div className="font-mono text-[13px] space-y-2">
-            <Row label={`${selected.name}`} sub={`${money(selected.price)} x ${quote.heads} ${isKids ? 'children' : 'guests'}`} val={formatMoney(quote.foodCents)} />
+            <Row label={`${selected.name}`} sub={`${money(selected.price)} x ${quote.heads} ${isKids ? 'children' : unit === 'bowl' ? 'bowls' : 'guests'}`} val={formatMoney(quote.foodCents)} />
+            {activeAddons.map((a) => (
+              <Row key={a.id} label={a.name} sub={`${money(a.price)} x ${quote.heads} guests`} val={formatMoney(dollarsToCents(a.price) * quote.heads)} />
+            ))}
             <Row label={method === 'Delivery' ? (quote.deliveryCents ? 'Delivery' : 'Delivery (free)') : 'Pickup'} val={quote.deliveryCents ? formatMoney(quote.deliveryCents) : '$0.00'} muted={!quote.deliveryCents} />
             <div className="h-px bg-paper-line my-1" />
             <Row label="Total" val={formatMoney(quote.orderTotalCents)} strong />
