@@ -232,7 +232,7 @@ export default function CateringForm({ kind, packages, usingFallback }) {
 
   return (
     <div className="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
-      <form onSubmit={handleSubmit} noValidate className="bg-paper text-ink border border-paper-line rounded-[3px] p-6 sm:p-8 space-y-9">
+      <form onSubmit={handleSubmit} noValidate className={`bg-paper text-ink border border-paper-line p-6 sm:p-8 space-y-9 ${isKids ? 'rounded-2xl' : 'rounded-[3px]'}`}>
         {usingFallback && (
           <p className="font-mono text-[12px] text-[#6b6552] bg-paper-dim border border-dashed border-paper-line rounded-[2px] px-3 py-2">
             Indicative pricing — final prices are confirmed on your quote.
@@ -251,8 +251,12 @@ export default function CateringForm({ kind, packages, usingFallback }) {
               return (
                 <label
                   key={p.id}
-                  className={`block cursor-pointer rounded-[3px] border px-4 py-3.5 transition-colors ${
-                    active ? 'border-chili bg-[#EEF3E3] shadow-[inset_3px_0_0_#4C7031]' : 'border-paper-line hover:border-[#8B8578]'
+                  className={`relative block cursor-pointer border px-4 py-3.5 transition-all ${
+                    isKids ? 'rounded-2xl' : 'rounded-[3px]'
+                  } ${
+                    active
+                      ? `border-chili bg-[#EEF3E3] shadow-[inset_3px_0_0_#4C7031] ${isKids ? '-translate-y-0.5' : ''}`
+                      : `border-paper-line hover:border-[#8B8578] ${isKids ? 'hover:-translate-y-0.5 hover:rotate-[0.4deg]' : ''}`
                   }`}
                 >
                   <input
@@ -263,6 +267,16 @@ export default function CateringForm({ kind, packages, usingFallback }) {
                     onChange={() => setSelectedId(p.id)}
                     className="sr-only"
                   />
+                  {isKids && active && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute -top-2.5 -right-2.5 w-6 h-6 rounded-full bg-mustard text-paper flex items-center justify-center shadow-[0_2px_4px_rgba(39,52,24,0.3)] rotate-[8deg]"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current">
+                        <path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z" />
+                      </svg>
+                    </span>
+                  )}
                   <span className="flex justify-between items-baseline gap-3">
                     <span className="font-sans font-bold text-[15px]">{p.name}</span>
                     <span className="font-mono text-[13px] text-chili-dark whitespace-nowrap">
@@ -388,8 +402,14 @@ export default function CateringForm({ kind, packages, usingFallback }) {
       </form>
 
       {/* docket */}
-      <aside className="bg-paper text-ink border border-paper-line rounded-[3px] p-6 lg:sticky lg:top-24">
-        <div className="font-mono font-bold text-[13px] tracking-wide uppercase pb-3 border-b-2 border-ink mb-4">
+      <aside className={`relative bg-paper text-ink border border-paper-line p-6 lg:sticky lg:top-24 ${isKids ? 'rounded-2xl overflow-hidden' : 'rounded-[3px]'}`}>
+        {isKids && (
+          <div
+            aria-hidden="true"
+            className="absolute top-0 left-0 right-0 h-1.5 bg-[repeating-linear-gradient(45deg,#4C7031_0_10px,#C9992F_10px_20px)]"
+          />
+        )}
+        <div className={`font-mono font-bold text-[13px] tracking-wide uppercase pb-3 border-b-2 border-ink mb-4 ${isKids ? 'pt-1.5' : ''}`}>
           Your docket
         </div>
         {!selected || !headcount || !quote ? (
@@ -423,7 +443,11 @@ export default function CateringForm({ kind, packages, usingFallback }) {
         )}
 
         <button type="button" onClick={handleSubmit} disabled={submitting}
-          className="mt-4 w-full bg-chili text-paper font-mono font-bold text-sm tracking-wide uppercase py-3 rounded-[2px] hover:bg-chili-dark transition-colors disabled:opacity-60">
+          className={`mt-4 w-full bg-chili text-paper font-mono font-bold text-sm tracking-wide uppercase py-3 transition-all disabled:opacity-60 ${
+            isKids
+              ? 'rounded-full hover:bg-chili-dark hover:scale-[1.03] active:scale-[0.98]'
+              : 'rounded-[2px] hover:bg-chili-dark'
+          }`}>
           {submitting ? 'Starting checkout…' : isKids ? 'Pay & send order' : 'Pay deposit & send order'}
         </button>
       </aside>
