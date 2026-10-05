@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Image from 'next/image';
 import { useCart } from './CartContext';
 import ItemModal from './ItemModal';
 
@@ -19,18 +20,43 @@ export default function MenuCard({ item }) {
   return (
     <>
       <div
-        className="group relative bg-paper text-ink border border-paper-line rounded-[3px] pt-[22px] px-[22px] pb-6
+        className="group relative flex flex-col bg-paper text-ink border border-paper-line rounded-[3px] pt-[22px] px-[22px] pb-6
           transition-transform hover:-translate-y-1 hover:shadow-[0_10px_0_rgba(39,52,24,0.12)]
           before:content-[''] before:absolute before:-top-1.5 before:left-0 before:right-0 before:h-3
           before:bg-[radial-gradient(circle,_#FFF0CB_3px,_transparent_3.2px)]
           before:[background-size:18px_12px] before:[background-position:9px_0] before:bg-repeat-x"
       >
         <div className="font-mono text-[11px] text-[#948d76] tracking-wide mb-2.5">No. {item.number}</div>
+        {item.imageUrl && (
+          <div className="relative aspect-[4/3] mb-3.5 overflow-hidden rounded-[2px] bg-paper-dim">
+            <Image
+              src={item.imageUrl}
+              alt={item.name}
+              fill
+              sizes="(min-width: 1120px) 340px, (min-width: 768px) 30vw, 100vw"
+              className="object-cover"
+            />
+          </div>
+        )}
         <h3 className="font-sans font-bold text-[17px] mb-2">{item.name}</h3>
+        {item.dietary?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-2.5" aria-label="Dietary information">
+            {item.dietary.map((d) => (
+              <span
+                key={d.code}
+                title={d.label}
+                aria-label={d.label}
+                className="font-mono text-[10px] tracking-wide border border-chili/50 text-chili-dark rounded-full px-2 py-0.5"
+              >
+                {d.code}
+              </span>
+            ))}
+          </div>
+        )}
         {item.description && (
           <p className="text-[13.5px] text-[#5c5744] mb-[18px]">{item.description}</p>
         )}
-        <div className="flex justify-between items-center border-t border-dashed border-paper-line pt-3.5">
+        <div className="mt-auto flex justify-between items-center border-t border-dashed border-paper-line pt-3.5">
           <span className="font-mono font-bold text-[15px] text-chili-dark">{priceLabel}</span>
           <button
             onClick={() => (item.hasOptions ? setShowOptions(true) : addItem(item))}

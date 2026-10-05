@@ -1,9 +1,10 @@
-import Head from 'next/head';
+import Seo from '../components/Seo';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import MenuCard from '../components/MenuCard';
 import { fetchMenu } from '../lib/square';
 import { curateMenu } from '../lib/menuConfig';
+import { ALLERGEN_NOTE } from '../lib/site';
 
 export async function getStaticProps() {
   const { categories } = await fetchMenu();
@@ -16,15 +17,18 @@ export async function getStaticProps() {
 }
 
 export default function Menu({ categories }) {
+  // Legend only lists the dietary badges actually in use on the menu.
+  const legendMap = new Map();
+  categories.forEach((c) => c.items.forEach((i) => (i.dietary || []).forEach((d) => legendMap.set(d.code, d))));
+  const legend = Array.from(legendMap.values());
+
   return (
     <>
-      <Head>
-        <title>Menu — Lunch Bar Woy Woy</title>
-        <meta
-          name="description"
-          content="Full menu for Lunch Bar Woy Woy — order pickup online."
-        />
-      </Head>
+      <Seo
+        title="Menu — Lunch Bar Woy Woy"
+        description="Full menu for Lunch Bar Woy Woy — toasted sandwiches, breakfast, burgers, coffee, juices and shakes. Order pickup online."
+        path="/menu"
+      />
 
       <Header />
 
@@ -38,6 +42,18 @@ export default function Menu({ categories }) {
         <p className="text-ink/70 max-w-[520px]">
           Browse the full menu and add items to your order. Checkout is handled securely
           through Square.
+        </p>
+        <p className="mt-5 max-w-[640px] border border-dashed border-ink/25 rounded-[3px] px-4 py-3 text-[13px] text-ink/70">
+          {ALLERGEN_NOTE}
+          {legend.length > 0 && (
+            <span className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-ink/60">
+              {legend.map((d) => (
+                <span key={d.code}>
+                  <strong className="text-chili-dark">{d.code}</strong> {d.label.toLowerCase()}
+                </span>
+              ))}
+            </span>
+          )}
         </p>
       </section>
 
