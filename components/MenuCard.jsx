@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Image from 'next/image';
+import FoodIllustration from './FoodIllustration';
 import { useCart } from './CartContext';
 import ItemModal from './ItemModal';
 
@@ -27,17 +27,11 @@ export default function MenuCard({ item }) {
           before:[background-size:18px_12px] before:[background-position:9px_0] before:bg-repeat-x"
       >
         <div className="font-mono text-[11px] text-[#948d76] tracking-wide mb-2.5">No. {item.number}</div>
-        {item.imageUrl && (
-          <div className="relative aspect-[4/3] mb-3.5 overflow-hidden rounded-[2px] bg-paper-dim">
-            <Image
-              src={item.imageUrl}
-              alt={item.name}
-              fill
-              sizes="(min-width: 1120px) 340px, (min-width: 768px) 30vw, 100vw"
-              className="object-cover"
-            />
+        <div className="aspect-[4/3] mb-3.5 rounded-[2px] border border-paper-line bg-white p-3 overflow-hidden">
+          <div className="w-full h-full transition-transform duration-300 group-hover:-rotate-2 group-hover:scale-105">
+            <FoodIllustration item={item} />
           </div>
-        )}
+        </div>
         <h3 className="font-sans font-bold text-[17px] mb-2">{item.name}</h3>
         {item.dietary?.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-2.5" aria-label="Dietary information">

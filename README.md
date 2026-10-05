@@ -78,8 +78,10 @@ email is sent when checkout *starts*.
   Drives the live "Open now / Closed" badge, the hours card, and which pickup
   times the cart offers; `create-checkout.js` enforces the same rules.
 - **Business details** (phone, address, socials, allergen note): `lib/site.js`.
-- **Menu photos:** upload a photo on the item in Square — it appears on the
-  site automatically (resized by Next's image optimiser).
+- **Menu illustrations:** each item gets a black-and-white stencil drawing
+  (`lib/illustrations.js`), chosen by matching the item's name. To change
+  which drawing an item uses, edit `RULES` there; to add a new drawing, add
+  it to `ART` and point a rule at it. Photos in Square are not used.
 - **Dietary badges (GF, V, VG, DF, NF...):** tick them on the item in Square
   (Items > item > food & beverage details); they appear on the menu.
 - **Item names on the site:** `lib/displayNames.js` tidies ALL CAPS and fixes
