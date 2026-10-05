@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /order-confirmed
+Disallow: /catering-confirmed
+
+Sitemap: https://www.lunchbarbakehouse.com.au/sitemap.xml

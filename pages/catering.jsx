@@ -1,4 +1,4 @@
-import Head from 'next/head';
+import Seo from '../components/Seo';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import CateringForm from '../components/CateringForm';
@@ -22,13 +22,11 @@ export async function getStaticProps() {
 export default function Catering({ packages, usingFallback }) {
   return (
     <>
-      <Head>
-        <title>Catering — Lunch Bar Woy Woy</title>
-        <meta
-          name="description"
-          content="Sandwich platters, gourmet baguettes and salad bowls for offices and gatherings. Order online, pay the deposit by card."
-        />
-      </Head>
+      <Seo
+        title="Catering — Lunch Bar Woy Woy"
+        description="Sandwich platters, gourmet baguettes and salad bowls for offices and gatherings. Order online, pay the deposit by card."
+        path="/catering"
+      />
 
       <Header />
 

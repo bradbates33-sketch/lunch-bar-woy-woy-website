@@ -14,25 +14,25 @@ export default function Footer() {
         </div>
         <div>
           <h4 className="font-mono text-[11px] tracking-[1.5px] uppercase text-paper/70 mb-3.5">Menu</h4>
-          <a href="#menu" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
-            Rolls &amp; sandwiches
+          <a href="/menu" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
+            Full menu
           </a>
-          <a href="#menu" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
-            Coffee
+          <a href="/catering" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
+            Catering
           </a>
-          <a href="#menu" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
-            Specials
+          <a href="/kids-catering" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
+            Kids catering
           </a>
         </div>
         <div>
           <h4 className="font-mono text-[11px] tracking-[1.5px] uppercase text-paper/70 mb-3.5">Shop</h4>
-          <a href="#about" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
+          <a href="/#about" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
             Our story
           </a>
-          <a href="#location" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
+          <a href="/contact" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
             Location &amp; hours
           </a>
-          <a href="#menu" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
+          <a href="/menu" className="block text-[13.5px] text-paper/60 hover:text-paper mb-2">
             Order pickup
           </a>
         </div>

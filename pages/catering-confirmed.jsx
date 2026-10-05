@@ -1,4 +1,4 @@
-import Head from 'next/head';
+import Seo from '../components/Seo';
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -11,9 +11,7 @@ export default function CateringConfirmed() {
 
   return (
     <>
-      <Head>
-        <title>Catering order confirmed — Lunch Bar Woy Woy</title>
-      </Head>
+      <Seo title="Catering order confirmed — Lunch Bar Woy Woy" description="Your catering order has been received." path="/catering-confirmed" noindex />
 
       <Header />
 

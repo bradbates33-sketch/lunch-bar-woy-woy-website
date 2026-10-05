@@ -1,13 +1,11 @@
-import Head from 'next/head';
+import Seo from '../components/Seo';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 export default function OrderConfirmed() {
   return (
     <>
-      <Head>
-        <title>Order confirmed — Lunch Bar Woy Woy</title>
-      </Head>
+      <Seo title="Order confirmed — Lunch Bar Woy Woy" description="Your order has been received." path="/order-confirmed" noindex />
 
       <Header />
 

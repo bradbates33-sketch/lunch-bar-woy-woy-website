@@ -1,4 +1,4 @@
-import Head from 'next/head';
+import Seo from '../components/Seo';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import CateringForm from '../components/CateringForm';
@@ -63,13 +63,11 @@ function Bunting() {
 export default function KidsCatering({ packages, usingFallback }) {
   return (
     <>
-      <Head>
-        <title>Kids Catering — Lunch Bar Woy Woy</title>
-        <meta
-          name="description"
-          content="Individually packed, labelled lunches for junior sport camps, school groups and kids' parties. Order online, pay by card."
-        />
-      </Head>
+      <Seo
+        title="Kids Catering — Lunch Bar Woy Woy"
+        description="Individually packed, labelled lunches for junior sport camps, school groups and kids' parties. Order online, pay by card."
+        path="/kids-catering"
+      />
 
       <Header />
 

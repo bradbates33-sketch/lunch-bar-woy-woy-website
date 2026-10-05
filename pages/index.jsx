@@ -1,4 +1,7 @@
-import Head from 'next/head';
+import Seo, { localBusinessJsonLd } from '../components/Seo';
+import useOpenStatus from '../components/useOpenStatus';
+import { SITE } from '../lib/site';
+import { hoursSummary } from '../lib/hours';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import OrderDocket from '../components/OrderDocket';
@@ -21,24 +24,39 @@ export async function getStaticProps() {
 }
 
 export default function Home({ items }) {
+  const status = useOpenStatus();
+
   return (
     <>
-      <Head>
-        <title>Lunch Bar Woy Woy</title>
-        <meta
-          name="description"
-          content="Toasted sandwiches, Greek gyros, Coffee & more, made to order in the heart of Woy Woy. Order ahead and skip the queue."
-        />
-      </Head>
+      <Seo
+        title="Lunch Bar Woy Woy"
+        description={SITE.defaultDescription}
+        path="/"
+        jsonLd={localBusinessJsonLd()}
+      />
 
       <Header />
 
       {/* Hero */}
       <section className="max-w-[1120px] mx-auto grid md:grid-cols-[1.05fr_0.95fr] gap-14 items-center px-8 pt-10 md:pt-[72px] pb-14 md:pb-24">
         <div>
-          <div className="flex items-center gap-2.5 font-mono text-xs tracking-[2px] uppercase text-chili mb-5">
-            <span className="w-[7px] h-[7px] rounded-full bg-chili shadow-[0_0_0_3px_rgba(76,112,49,0.22)]" />
-            Open now &middot; Pickup ready in 15 min
+          <div
+            className={`flex items-center gap-2.5 font-mono text-xs tracking-[2px] uppercase mb-5 ${
+              status && !status.open ? 'text-ink/60' : 'text-chili'
+            }`}
+          >
+            <span
+              className={`w-[7px] h-[7px] rounded-full ${
+                status && !status.open
+                  ? 'bg-ink/40 shadow-[0_0_0_3px_rgba(39,52,24,0.12)]'
+                  : 'bg-chili shadow-[0_0_0_3px_rgba(76,112,49,0.22)]'
+              }`}
+            />
+            {status
+              ? status.open
+                ? `${status.headline} · Pickup ready in 15 min`
+                : `${status.headline} · Order ahead`
+              : 'Pickup ready in 15 min'}
           </div>
           <h1 className="font-mono font-bold text-[36px] sm:text-[44px] leading-[1.15] tracking-tight text-ink mb-[22px]">
             Fresh, fast,
@@ -71,10 +89,10 @@ export default function Home({ items }) {
       <div className="bg-bg-panel border-y border-black/10">
         <div className="max-w-[1120px] mx-auto px-8 py-5 flex flex-wrap gap-7 justify-between items-center font-mono text-[13px] text-paper/70">
           <div>
-            <strong className="text-paper font-bold">Open</strong>&nbsp;Mon–Fri 6:00am – 2:00pm
+            <strong className="text-paper font-bold">Open</strong>&nbsp;{hoursSummary()}
           </div>
-          <div>35 Blackwall Rd, Woy Woy NSW</div>
-          <div>0422 430 033</div>
+          <div>{SITE.address.street.replace('Road', 'Rd')}, {SITE.address.locality} {SITE.address.region}</div>
+          <div>{SITE.phone}</div>
           <a
             href="#location"
             className="border-b border-paper/40 pb-[3px] hover:border-paper hover:text-paper transition-colors"
