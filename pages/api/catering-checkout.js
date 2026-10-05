@@ -1,4 +1,5 @@
 import { fetchMenu } from '../../lib/square';
+import { sendOrderEmail } from '../../lib/email';
 import {
   splitCateringMenu,
   priceCateringOrder,
@@ -172,8 +173,10 @@ export default async function handler(req, res) {
         order: {
           location_id: locationId,
           reference_id: ref,
-          line_items: lineItems,
-          note,
+          ticket_name: ref,
+          // Square has no order-level "note" field, so the full event/contact
+          // details ride on the first line item and on the payment itself.
+          line_items: lineItems.map((li, i) => (i === 0 ? { ...li, note } : li)),
           metadata: {
             ref,
             kind,
@@ -185,6 +188,7 @@ export default async function handler(req, res) {
             charge_aud: (quote.chargeCents / 100).toFixed(2),
           },
         },
+        payment_note: note,
         checkout_options: {
           redirect_url: `${origin}/catering-confirmed?ref=${encodeURIComponent(ref)}`,
           merchant_support_email: CATERING.contactEmail,
@@ -213,10 +217,15 @@ export default async function handler(req, res) {
 
     // Email a copy to the business — invoice framing for the deposit-based
     // Catering flow, receipt framing for Kids Catering (paid in full).
-    emailOrderNotification({
-      ref, note, quote, item, customer, kind, unit, activeAddons,
-      eventDate, eventTime, deliveryMethod, address, dietary, notes,
-    }).catch((err) => console.error('Catering notify failed:', err.message));
+    // Once the Square webhook is set up (SQUARE_WEBHOOK_SIGNATURE_KEY), the
+    // email is sent by pages/api/square-webhook.js when payment actually
+    // completes, so this hand-off email is skipped to avoid sending twice.
+    if (!process.env.SQUARE_WEBHOOK_SIGNATURE_KEY) {
+      emailOrderNotification({
+        ref, note, quote, item, customer, kind, unit, activeAddons,
+        eventDate, eventTime, deliveryMethod, address, dietary, notes,
+      }).catch((err) => console.error('Catering notify failed:', err.message));
+    }
 
     return res.status(200).json({
       url: data.payment_link.url,
@@ -257,11 +266,6 @@ async function emailOrderNotification({
   dietary,
   notes,
 }) {
-  const key = process.env.RESEND_API_KEY;
-  const from = process.env.ORDER_FROM_EMAIL;
-  const to = process.env.ORDER_NOTIFY_EMAIL || CATERING.contactEmail;
-  if (!key || !from) return;
-
   const isKids = kind === 'kids';
   const unitWord = isKids ? 'children' : unit === 'bowl' ? 'bowls' : 'guests';
   const fmtDate = (str) => {
@@ -304,15 +308,9 @@ async function emailOrderNotification({
     `(Sent when the customer was handed off to Square to pay — check Square for payment confirmation.)`,
   );
 
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from,
-      to,
-      reply_to: customer.email,
-      subject: isKids ? `Kids Catering receipt — ${ref}` : `Catering invoice — ${ref}`,
-      text: lines.join('\n'),
-    }),
+  await sendOrderEmail({
+    subject: isKids ? `Kids Catering receipt — ${ref}` : `Catering invoice — ${ref}`,
+    text: lines.join('\n'),
+    replyTo: customer.email,
   });
 }

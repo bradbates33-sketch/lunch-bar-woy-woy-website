@@ -1,12 +1,8 @@
 import { useState } from 'react';
 import { useCart } from './CartContext';
+import { getStatus, formatMinutes, minutesToTimeValue, timeValueToMinutes } from '../lib/hours';
 
 const money = (cents) => `$${(cents / 100).toFixed(2)}`;
-
-function minPickupTime() {
-  const d = new Date(Date.now() + 15 * 60 * 1000);
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-}
 
 export default function CartDrawer() {
   const { items, updateQuantity, removeItem, subtotal, isOpen, setIsOpen } = useCart();
@@ -15,11 +11,31 @@ export default function CartDrawer() {
   const [pickupChoice, setPickupChoice] = useState('asap'); // "asap" | "time"
   const [pickupTimeValue, setPickupTimeValue] = useState('');
 
+  // Trading hours decide what's offered. Only worked out while the drawer is
+  // showing a non-empty cart, i.e. always after hydration.
+  const status = isOpen && items.length > 0 ? getStatus() : null;
+  const effectiveChoice = status && !status.canAsap ? 'time' : pickupChoice;
+  const timeWindow = status
+    ? `${formatMinutes(status.window.from)} and ${formatMinutes(status.window.to)}`
+    : '';
+
   async function handleCheckout() {
     setError('');
-    if (pickupChoice === 'time' && !pickupTimeValue) {
-      setError('Choose a pickup time, or pick ASAP.');
-      return;
+    const current = getStatus();
+    const choice = current.canAsap ? pickupChoice : 'time';
+    if (choice === 'time') {
+      const mins = timeValueToMinutes(pickupTimeValue);
+      if (mins === null) {
+        setError('Choose a pickup time.');
+        return;
+      }
+      if (mins < current.window.from || mins > current.window.to) {
+        setError(
+          `Pickup times ${current.pickupDay} are between ` +
+            `${formatMinutes(current.window.from)} and ${formatMinutes(current.window.to)}.`,
+        );
+        return;
+      }
     }
     setCheckingOut(true);
     try {
@@ -32,11 +48,18 @@ export default function CartDrawer() {
             quantity: l.quantity,
             modifierIds: (l.modifiers || []).map((m) => m.id),
           })),
-          pickupTime: pickupChoice === 'asap' ? 'asap' : pickupTimeValue,
+          pickupTime: choice === 'asap' ? 'asap' : pickupTimeValue,
+          pickupDate: current.pickupDate,
         }),
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.url) {
+        // 4xx errors carry a customer-readable reason (e.g. outside trading hours).
+        if (response.status === 400 && data.error) {
+          setError(data.error);
+          setCheckingOut(false);
+          return;
+        }
         throw new Error('Checkout failed');
       }
       window.location.href = data.url;
@@ -126,12 +149,29 @@ export default function CartDrawer() {
               <div className="font-mono text-[11px] tracking-wide uppercase text-[#6b6552] mb-2">
                 Pickup time
               </div>
+              {status && !status.open && (
+                <p className="font-mono text-[12px] text-chili-dark mb-2">
+                  {status.pickupDay === 'tomorrow'
+                    ? `We’re closed for today — this order will be for tomorrow (${status.pickupDateLabel}).`
+                    : `We’re not open yet — pick a time once we open.`}
+                </p>
+              )}
+              {status && status.open && !status.canAsap && (
+                <p className="font-mono text-[12px] text-chili-dark mb-2">
+                  We&apos;re about to close &mdash; this order will be for tomorrow ({status.pickupDateLabel}).
+                </p>
+              )}
               <div className="flex flex-col gap-2 font-mono text-[13px]">
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label
+                  className={`flex items-center gap-2 ${
+                    status && !status.canAsap ? 'opacity-45 cursor-not-allowed' : 'cursor-pointer'
+                  }`}
+                >
                   <input
                     type="radio"
                     name="pickup-time"
-                    checked={pickupChoice === 'asap'}
+                    checked={effectiveChoice === 'asap'}
+                    disabled={!!status && !status.canAsap}
                     onChange={() => setPickupChoice('asap')}
                     className="accent-chili"
                   />
@@ -141,21 +181,29 @@ export default function CartDrawer() {
                   <input
                     type="radio"
                     name="pickup-time"
-                    checked={pickupChoice === 'time'}
+                    checked={effectiveChoice === 'time'}
                     onChange={() => setPickupChoice('time')}
                     className="accent-chili"
                   />
                   Choose a time
                 </label>
               </div>
-              {pickupChoice === 'time' && (
-                <input
-                  type="time"
-                  min={minPickupTime()}
-                  value={pickupTimeValue}
-                  onChange={(e) => setPickupTimeValue(e.target.value)}
-                  className="mt-2 w-full font-sans text-sm text-ink bg-[#FBF4DE] border border-paper-line rounded-[2px] px-3 py-2 outline-none focus:border-chili focus:ring-1 focus:ring-chili"
-                />
+              {effectiveChoice === 'time' && (
+                <>
+                  <input
+                    type="time"
+                    min={status ? minutesToTimeValue(status.window.from) : undefined}
+                    max={status ? minutesToTimeValue(status.window.to) : undefined}
+                    value={pickupTimeValue}
+                    onChange={(e) => setPickupTimeValue(e.target.value)}
+                    className="mt-2 w-full font-sans text-sm text-ink bg-[#FBF4DE] border border-paper-line rounded-[2px] px-3 py-2 outline-none focus:border-chili focus:ring-1 focus:ring-chili"
+                  />
+                  {status && (
+                    <p className="font-mono text-[11px] text-[#6b6552] mt-1.5">
+                      Pickup {status.pickupDay === 'tomorrow' ? `tomorrow (${status.pickupDateLabel})` : 'today'} between {timeWindow}.
+                    </p>
+                  )}
+                </>
               )}
             </div>
 

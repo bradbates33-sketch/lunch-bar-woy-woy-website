@@ -49,8 +49,10 @@ Two order pages, one shared form (`components/CateringForm.jsx`), rules in
 ### How catering payment works
 
 - **Platters:** customer pays a **30% deposit** by card now (Square hosted
-  checkout). Full order total + all event details are stored on the Square
-  order note/metadata. Invoice the balance from Square before the event.
+  checkout). The full event/contact details are stored on the order's first
+  line item and the payment note, the totals in the order metadata. (Square
+  orders have no order-level note field — only those.) Invoice the balance
+  from Square before the event.
 - **Kids Catering:** customer pays the **full amount** by card now.
 - The charged amount is always recomputed server-side in `lib/catering.js`
   from the Square price × headcount — a tampered browser request can't change
@@ -58,7 +60,29 @@ Two order pages, one shared form (`components/CateringForm.jsx`), rules in
 - Rules (deposit %, `$15` delivery fee, free over `$200`, 10-guest platter
   minimum, 48 hr notice) live in `CATERING` in `lib/catering.js`.
 
-### Recommended follow-up
+### Paid-order emails (webhook)
 
-Add a Square **webhook** (`payment.updated`) for a confirmed-payment
-notification instead of relying on the "order started" email.
+`pages/api/square-webhook.js` receives Square's `payment.updated` event, and
+when a **catering** payment is `COMPLETED` emails the invoice/receipt (so you
+are only emailed for orders that were actually paid). It needs, in Vercel:
+
+- `SQUARE_WEBHOOK_SIGNATURE_KEY` — the subscription's signing key
+- `RESEND_API_KEY` and `ORDER_FROM_EMAIL` — see `.env.example`
+
+If `SQUARE_WEBHOOK_SIGNATURE_KEY` isn't set, the old behaviour applies: the
+email is sent when checkout *starts*.
+
+## Site settings
+
+- **Trading hours / pickup rules:** `lib/hours.js` (Australia/Sydney time).
+  Drives the live "Open now / Closed" badge, the hours card, and which pickup
+  times the cart offers; `create-checkout.js` enforces the same rules.
+- **Business details** (phone, address, socials, allergen note): `lib/site.js`.
+- **Menu photos:** upload a photo on the item in Square — it appears on the
+  site automatically (resized by Next's image optimiser).
+- **Dietary badges (GF, V, VG, DF, NF...):** tick them on the item in Square
+  (Items > item > food & beverage details); they appear on the menu.
+- **Item names on the site:** `lib/displayNames.js` tidies ALL CAPS and fixes
+  known typos for display only. Square itself is never changed.
+- **Visitor stats:** Vercel Analytics (`pages/_app.jsx`) — switch it on under
+  the project's Analytics tab.
