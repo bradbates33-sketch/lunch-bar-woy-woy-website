@@ -3,17 +3,20 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import CateringForm from '../components/CateringForm';
 import { fetchMenu } from '../lib/square';
-import { splitCateringMenu, FALLBACK, CATERING } from '../lib/catering';
+import { splitCateringMenu, ecssPackageIds, FALLBACK, CATERING } from '../lib/catering';
+import { sydneyNow } from '../lib/hours';
 
 export async function getStaticProps() {
   const { categories } = await fetchMenu();
   const { kids } = splitCateringMenu(categories);
   const usingFallback = kids.length === 0;
+  const packages = usingFallback ? FALLBACK.kids : kids;
 
   return {
     props: {
-      packages: usingFallback ? FALLBACK.kids : kids,
+      packages,
       usingFallback,
+      ecssIds: ecssPackageIds(packages, sydneyNow().dateISO),
     },
     revalidate: 300,
   };
@@ -60,7 +63,7 @@ function Bunting() {
   );
 }
 
-export default function KidsCatering({ packages, usingFallback }) {
+export default function KidsCatering({ packages, usingFallback, ecssIds }) {
   return (
     <>
       <Seo
@@ -102,7 +105,7 @@ export default function KidsCatering({ packages, usingFallback }) {
       <Bunting />
 
       <section className="max-w-[1120px] mx-auto px-8 pt-10 pb-24">
-        <CateringForm kind="kids" packages={packages} usingFallback={usingFallback} />
+        <CateringForm kind="kids" packages={packages} usingFallback={usingFallback} ecssIds={ecssIds} />
       </section>
 
       <Footer />

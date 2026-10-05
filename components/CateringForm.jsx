@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   CATERING,
   CATERING_ADDONS,
+  ECSS_CAMP,
   priceCateringOrder,
   dollarsToCents,
   formatMoney,
@@ -24,7 +25,7 @@ function fmtDate(iso) {
 }
 
 // kind: "platters" | "kids"
-export default function CateringForm({ kind, packages, usingFallback }) {
+export default function CateringForm({ kind, packages, usingFallback, ecssIds = [] }) {
   const isKids = kind === 'kids';
   const [selectedId, setSelectedId] = useState('');
   const [headcount, setHeadcount] = useState('');
@@ -212,6 +213,55 @@ export default function CateringForm({ kind, packages, usingFallback }) {
   let step = 0;
   const stepNum = () => String(++step).padStart(2, '0');
 
+  // Kids page only: the ECSS camp packages sit in their own branded group.
+  const ecssPkgs = packages.filter((p) => ecssIds.includes(p.id));
+  const otherPkgs = packages.filter((p) => !ecssIds.includes(p.id));
+
+  const renderPackage = (p) => {
+    const active = p.id === selectedId;
+    const pUnit = unitForItem(p);
+    return (
+      <label
+        key={p.id}
+        className={`relative block cursor-pointer border px-4 py-3.5 transition-all ${
+          isKids ? 'rounded-2xl' : 'rounded-[3px]'
+        } ${
+          active
+            ? `border-chili bg-[#EEF3E3] shadow-[inset_3px_0_0_#4C7031] ${isKids ? '-translate-y-0.5' : ''}`
+            : `border-paper-line bg-paper hover:border-[#8B8578] ${isKids ? 'hover:-translate-y-0.5 hover:rotate-[0.4deg]' : ''}`
+        }`}
+      >
+        <input
+          type="radio"
+          name="package"
+          value={p.id}
+          checked={active}
+          onChange={() => setSelectedId(p.id)}
+          className="sr-only"
+        />
+        {isKids && active && (
+          <span
+            aria-hidden="true"
+            className="absolute -top-2.5 -right-2.5 w-6 h-6 rounded-full bg-mustard text-paper flex items-center justify-center shadow-[0_2px_4px_rgba(39,52,24,0.3)] rotate-[8deg]"
+          >
+            <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current">
+              <path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z" />
+            </svg>
+          </span>
+        )}
+        <span className="flex justify-between items-baseline gap-3">
+          <span className="font-sans font-bold text-[15px]">{p.name}</span>
+          <span className="font-mono text-[13px] text-chili-dark whitespace-nowrap">
+            {money(p.price)} <span className="text-[#948d76]">/ {isKids ? 'child' : pUnit}</span>
+          </span>
+        </span>
+        {p.description && (
+          <span className="block mt-1 text-[13px] text-[#5c5744]">{p.description}</span>
+        )}
+      </label>
+    );
+  };
+
   if (done) {
     return (
       <div className="bg-paper text-ink border border-paper-line rounded-[3px] p-8">
@@ -258,50 +308,33 @@ export default function CateringForm({ kind, packages, usingFallback }) {
             {stepNum()} — Choose a package
           </legend>
           <div className="space-y-2.5" role="radiogroup" aria-label="Package">
-            {packages.map((p) => {
-              const active = p.id === selectedId;
-              const pUnit = unitForItem(p);
-              return (
-                <label
-                  key={p.id}
-                  className={`relative block cursor-pointer border px-4 py-3.5 transition-all ${
-                    isKids ? 'rounded-2xl' : 'rounded-[3px]'
-                  } ${
-                    active
-                      ? `border-chili bg-[#EEF3E3] shadow-[inset_3px_0_0_#4C7031] ${isKids ? '-translate-y-0.5' : ''}`
-                      : `border-paper-line hover:border-[#8B8578] ${isKids ? 'hover:-translate-y-0.5 hover:rotate-[0.4deg]' : ''}`
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="package"
-                    value={p.id}
-                    checked={active}
-                    onChange={() => setSelectedId(p.id)}
-                    className="sr-only"
+            {ecssPkgs.length > 0 && (
+              <div className="rounded-2xl bg-[#141414] border border-[#DEB663] p-3 sm:p-4 space-y-3">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={ECSS_CAMP.logo}
+                    alt={`${ECSS_CAMP.school} logo`}
+                    width="72"
+                    height="72"
+                    className="w-[72px] h-[72px] shrink-0"
                   />
-                  {isKids && active && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute -top-2.5 -right-2.5 w-6 h-6 rounded-full bg-mustard text-paper flex items-center justify-center shadow-[0_2px_4px_rgba(39,52,24,0.3)] rotate-[8deg]"
-                    >
-                      <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current">
-                        <path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z" />
-                      </svg>
-                    </span>
-                  )}
-                  <span className="flex justify-between items-baseline gap-3">
-                    <span className="font-sans font-bold text-[15px]">{p.name}</span>
-                    <span className="font-mono text-[13px] text-chili-dark whitespace-nowrap">
-                      {money(p.price)} <span className="text-[#948d76]">/ {isKids ? 'child' : pUnit}</span>
-                    </span>
-                  </span>
-                  {p.description && (
-                    <span className="block mt-1 text-[13px] text-[#5c5744]">{p.description}</span>
-                  )}
-                </label>
-              );
-            })}
+                  <div>
+                    <div className="font-mono text-[11px] tracking-[2px] uppercase text-[#DEB663]">
+                      {ECSS_CAMP.school}
+                    </div>
+                    <div className="font-mono font-bold text-[18px] text-white leading-tight">{ECSS_CAMP.title} lunches</div>
+                    <div className="font-mono text-[12px] text-[#DEB663] mt-0.5">{ECSS_CAMP.dates}</div>
+                  </div>
+                </div>
+                <div className="space-y-2.5">{ecssPkgs.map(renderPackage)}</div>
+              </div>
+            )}
+            {ecssPkgs.length > 0 && otherPkgs.length > 0 && (
+              <div className="font-mono text-[11px] tracking-[2px] uppercase text-[#948d76] pt-2">
+                Other packages
+              </div>
+            )}
+            {otherPkgs.map(renderPackage)}
           </div>
           {errors.package && <p className="font-mono text-[12px] text-chili-dark font-bold">{errors.package}</p>}
         </fieldset>

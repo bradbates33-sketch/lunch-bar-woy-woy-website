@@ -86,5 +86,9 @@ email is sent when checkout *starts*.
   (Items > item > food & beverage details); they appear on the menu.
 - **Item names on the site:** `lib/displayNames.js` tidies ALL CAPS and fixes
   known typos for display only. Square itself is never changed.
+- **ECSS soccer camp group** (Kids Catering page): `ECSS_CAMP` in
+  `lib/catering.js` sets the camp name, dates, which packages are in the group
+  and the last day it shows (`until`). After that date the packages return to
+  the normal list on their own. Logo: `public/ecss-logo.png`.
 - **Visitor stats:** Vercel Analytics (`pages/_app.jsx`) — switch it on under
   the project's Analytics tab.
