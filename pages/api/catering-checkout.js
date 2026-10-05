@@ -12,6 +12,20 @@ import {
 
 const SQUARE_VERSION = '2024-08-21';
 
+// Square only accepts international-format phone numbers. Customers type
+// local ones (0422 430 033), so convert; return '' if it doesn't look valid.
+function toE164AU(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  const digits = s.replace(/\D/g, '');
+  let e164;
+  if (s.startsWith('+')) e164 = `+${digits}`;
+  else if (digits.startsWith('61')) e164 = `+${digits}`;
+  else if (digits.startsWith('0')) e164 = `+61${digits.slice(1)}`;
+  else return '';
+  return /^\+\d{9,15}$/.test(e164) ? e164 : '';
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -139,7 +153,13 @@ export default async function handler(req, res) {
       ? 'https://connect.squareupsandbox.com'
       : 'https://connect.squareup.com';
 
-  try {
+  const phone = toE164AU(customer.phone);
+  const prefill = {
+    buyer_email: customer.email,
+    ...(phone ? { buyer_phone_number: phone } : {}),
+  };
+
+  const createLink = async (prePopulated) => {
     const response = await fetch(`${baseUrl}/v2/online-checkout/payment-links`, {
       method: 'POST',
       headers: {
@@ -170,14 +190,22 @@ export default async function handler(req, res) {
           merchant_support_email: CATERING.contactEmail,
           ask_for_shipping_address: false,
         },
-        pre_populated_data: {
-          buyer_email: customer.email,
-          buyer_phone_number: customer.phone || undefined,
-        },
+        ...(prePopulated ? { pre_populated_data: prePopulated } : {}),
       }),
     });
+    return { response, data: await response.json() };
+  };
 
-    const data = await response.json();
+  try {
+    let { response, data } = await createLink(prefill);
+
+    // Pre-filled contact details are only a convenience — if Square rejects
+    // one, retry without them rather than failing the whole payment.
+    const badPrefill = (data.errors || []).some((e) => String(e.field || '').startsWith('pre_populated_data'));
+    if (!response.ok && badPrefill) {
+      ({ response, data } = await createLink(null));
+    }
+
     if (!response.ok || !data.payment_link?.url) {
       console.error('Square catering checkout error:', JSON.stringify(data));
       return res.status(502).json({ error: 'Could not start checkout' });

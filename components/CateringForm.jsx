@@ -180,11 +180,24 @@ export default function CateringForm({ kind, packages, usingFallback }) {
         return;
       }
       setSubmitting(false);
-      fallbackToEmail(ref, data.error || "Couldn't start card checkout");
+      failCheckout(ref, data.error || "Couldn't start card checkout");
     } catch {
       setSubmitting(false);
-      fallbackToEmail(ref, "Couldn't reach card checkout");
+      failCheckout(ref, "Couldn't reach card checkout");
     }
+  }
+
+  // Kids Catering is card-payment only, so a failure stays on the form with a
+  // retry message instead of opening an unpaid email enquiry.
+  function failCheckout(ref, reason) {
+    if (isKids) {
+      setStatus({
+        type: 'error',
+        message: `${reason.replace(/[.\s]+$/, '')}. Please try again, or call the shop on 0422 430 033.`,
+      });
+      return;
+    }
+    fallbackToEmail(ref, reason);
   }
 
   const money = (v) => (v ? `$${v}` : 'POA');
