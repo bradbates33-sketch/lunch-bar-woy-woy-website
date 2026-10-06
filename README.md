@@ -77,6 +77,9 @@ email is sent when checkout *starts*.
 - **Trading hours / pickup rules:** `lib/hours.js` (Australia/Sydney time).
   Drives the live "Open now / Closed" badge, the hours card, and which pickup
   times the cart offers; `create-checkout.js` enforces the same rules.
+  Customers can book a pickup for any open day up to `MAX_ADVANCE_DAYS` (7)
+  ahead. Add public holidays / days off to `CLOSED_DATES` (YYYY-MM-DD) and
+  they disappear from the day list and are refused at checkout.
 - **Business details** (phone, address, socials, allergen note): `lib/site.js`.
 - **Menu illustrations:** each item gets a black-and-white stencil drawing
   (`lib/illustrations.js`), chosen by matching the item's name. To change

@@ -10,29 +10,38 @@ export default function CartDrawer() {
   const [error, setError] = useState('');
   const [pickupChoice, setPickupChoice] = useState('asap'); // "asap" | "time"
   const [pickupTimeValue, setPickupTimeValue] = useState('');
+  const [pickupDateValue, setPickupDateValue] = useState(''); // YYYY-MM-DD, '' = soonest day
 
   // Trading hours decide what's offered. Only worked out while the drawer is
   // showing a non-empty cart, i.e. always after hydration.
   const status = isOpen && items.length > 0 ? getStatus() : null;
   const effectiveChoice = status && !status.canAsap ? 'time' : pickupChoice;
-  const timeWindow = status
-    ? `${formatMinutes(status.window.from)} and ${formatMinutes(status.window.to)}`
-    : '';
+  const selectedDay = status
+    ? status.days.find((d) => d.dateISO === pickupDateValue) || status.days[0]
+    : null;
+  const dayPhrase = (d) => (d.isToday ? 'today' : d.label === 'Tomorrow' ? 'tomorrow' : `on ${d.fullLabel}`);
+  const dayOptionLabel = (d) => (d.label === d.fullLabel ? d.label : `${d.label} (${d.fullLabel})`);
 
   async function handleCheckout() {
     setError('');
     const current = getStatus();
     const choice = current.canAsap ? pickupChoice : 'time';
+    let day = null;
     if (choice === 'time') {
+      day = current.days.find((d) => d.dateISO === pickupDateValue) || current.days[0];
+      if (!day) {
+        setError('Sorry, we can’t take pickup orders right now.');
+        return;
+      }
       const mins = timeValueToMinutes(pickupTimeValue);
       if (mins === null) {
         setError('Choose a pickup time.');
         return;
       }
-      if (mins < current.window.from || mins > current.window.to) {
+      if (mins < day.window.from || mins > day.window.to) {
         setError(
-          `Pickup times ${current.pickupDay} are between ` +
-            `${formatMinutes(current.window.from)} and ${formatMinutes(current.window.to)}.`,
+          `Pickup times ${dayPhrase(day)} are between ` +
+            `${formatMinutes(day.window.from)} and ${formatMinutes(day.window.to)}.`,
         );
         return;
       }
@@ -49,7 +58,7 @@ export default function CartDrawer() {
             modifierIds: (l.modifiers || []).map((m) => m.id),
           })),
           pickupTime: choice === 'asap' ? 'asap' : pickupTimeValue,
-          pickupDate: current.pickupDate,
+          pickupDate: day ? day.dateISO : undefined,
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -151,14 +160,14 @@ export default function CartDrawer() {
               </div>
               {status && !status.open && (
                 <p className="font-mono text-[12px] text-chili-dark mb-2">
-                  {status.pickupDay === 'tomorrow'
-                    ? `We’re closed for today — this order will be for tomorrow (${status.pickupDateLabel}).`
-                    : `We’re not open yet — pick a time once we open.`}
+                  {status.days[0] && status.days[0].isToday
+                    ? 'We’re not open yet — choose a pickup time once we open.'
+                    : 'We’re closed for today — choose a day and time below.'}
                 </p>
               )}
               {status && status.open && !status.canAsap && (
                 <p className="font-mono text-[12px] text-chili-dark mb-2">
-                  We&apos;re about to close &mdash; this order will be for tomorrow ({status.pickupDateLabel}).
+                  We&apos;re about to close &mdash; choose another day and time below.
                 </p>
               )}
               <div className="flex flex-col gap-2 font-mono text-[13px]">
@@ -185,25 +194,37 @@ export default function CartDrawer() {
                     onChange={() => setPickupChoice('time')}
                     className="accent-chili"
                   />
-                  Choose a time
+                  Choose a day &amp; time
                 </label>
               </div>
-              {effectiveChoice === 'time' && (
-                <>
+              {effectiveChoice === 'time' && status && selectedDay && (
+                <div className="mt-2 grid grid-cols-[1fr_auto] gap-2">
+                  <select
+                    aria-label="Pickup day"
+                    value={selectedDay.dateISO}
+                    onChange={(e) => setPickupDateValue(e.target.value)}
+                    className="w-full font-sans text-sm text-ink bg-[#FBF4DE] border border-paper-line rounded-[2px] px-3 py-2 outline-none focus:border-chili focus:ring-1 focus:ring-chili"
+                  >
+                    {status.days.map((d) => (
+                      <option key={d.dateISO} value={d.dateISO}>
+                        {dayOptionLabel(d)}
+                      </option>
+                    ))}
+                  </select>
                   <input
                     type="time"
-                    min={status ? minutesToTimeValue(status.window.from) : undefined}
-                    max={status ? minutesToTimeValue(status.window.to) : undefined}
+                    aria-label="Pickup time"
+                    min={minutesToTimeValue(selectedDay.window.from)}
+                    max={minutesToTimeValue(selectedDay.window.to)}
                     value={pickupTimeValue}
                     onChange={(e) => setPickupTimeValue(e.target.value)}
-                    className="mt-2 w-full font-sans text-sm text-ink bg-[#FBF4DE] border border-paper-line rounded-[2px] px-3 py-2 outline-none focus:border-chili focus:ring-1 focus:ring-chili"
+                    className="font-sans text-sm text-ink bg-[#FBF4DE] border border-paper-line rounded-[2px] px-3 py-2 outline-none focus:border-chili focus:ring-1 focus:ring-chili"
                   />
-                  {status && (
-                    <p className="font-mono text-[11px] text-[#6b6552] mt-1.5">
-                      Pickup {status.pickupDay === 'tomorrow' ? `tomorrow (${status.pickupDateLabel})` : 'today'} between {timeWindow}.
-                    </p>
-                  )}
-                </>
+                  <p className="col-span-2 font-mono text-[11px] text-[#6b6552]">
+                    Pickup {dayPhrase(selectedDay)} between {formatMinutes(selectedDay.window.from)} and{' '}
+                    {formatMinutes(selectedDay.window.to)}.
+                  </p>
+                </div>
               )}
             </div>
 
