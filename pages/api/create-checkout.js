@@ -1,22 +1,31 @@
 import { validatePickup } from '../../lib/hours';
+import { validateEcssDelivery } from '../../lib/ecssDelivery';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { items, pickupTime, pickupDate } = req.body || {};
+  const { items, pickupTime, pickupDate, ecss } = req.body || {};
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Cart is empty' });
   }
 
-  // Trading hours are enforced here too — the browser check is only a courtesy.
-  const pickup = validatePickup({ pickupTime, pickupDate });
-  if (!pickup.ok) {
-    return res.status(400).json({ error: pickup.error });
+  // Temporary ECSS soccer camp coach delivery, or a normal pickup. Both are
+  // checked here too — the browser checks are only a courtesy.
+  let delivery = null;
+  let pickup = null;
+  if (ecss) {
+    delivery = validateEcssDelivery(ecss);
+    if (!delivery.ok) return res.status(400).json({ error: delivery.error });
+  } else {
+    pickup = validatePickup({ pickupTime, pickupDate });
+    if (!pickup.ok) return res.status(400).json({ error: pickup.error });
   }
-  const pickupNote = pickup.note;
+  const ecssRef = delivery
+    ? `ECSS-${delivery.opt.dateISO.replace(/-/g, '').slice(2)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`
+    : null;
 
   const lineItems = [];
   for (const item of items) {
@@ -26,6 +35,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Cart contains an invalid item' });
     }
     const line = { catalog_object_id: catalogObjectId, quantity: String(quantity) };
+    if (delivery) line.note = delivery.lineNote;
     const modifierIds = Array.isArray(item.modifierIds)
       ? item.modifierIds.filter(Boolean).map(String)
       : [];
@@ -64,9 +74,21 @@ export default async function handler(req, res) {
           line_items: lineItems,
           // Square has no order-level "note" field, so the pickup time goes in
           // the ticket name (shown on the order/ticket) and the payment note.
-          ticket_name: pickup.ticketName,
+          ticket_name: delivery ? delivery.ticketName : pickup.ticketName,
+          ...(delivery
+            ? {
+                reference_id: ecssRef,
+                metadata: {
+                  ecss: 'coach-delivery',
+                  delivery_date: delivery.opt.dateISO,
+                  delivery_time: delivery.opt.timeLabel,
+                  coach: delivery.name.slice(0, 120),
+                  phone: delivery.phone,
+                },
+              }
+            : {}),
         },
-        payment_note: pickupNote,
+        payment_note: delivery ? delivery.paymentNote : pickup.note,
         checkout_options: {
           redirect_url: `${origin}/order-confirmed`,
         },

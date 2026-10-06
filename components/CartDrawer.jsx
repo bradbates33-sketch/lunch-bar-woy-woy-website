@@ -1,21 +1,38 @@
 import { useState } from 'react';
 import { useCart } from './CartContext';
 import { getStatus, formatMinutes, minutesToTimeValue, timeValueToMinutes } from '../lib/hours';
+import { ecssDeliveryOptions } from '../lib/ecssDelivery';
+import { ECSS_CAMP } from '../lib/catering';
 
 const money = (cents) => `$${(cents / 100).toFixed(2)}`;
+const fieldCls =
+  'w-full font-sans text-sm text-ink bg-[#FBF4DE] border border-paper-line rounded-[2px] px-3 py-2 outline-none focus:border-chili focus:ring-1 focus:ring-chili';
 
 export default function CartDrawer() {
   const { items, updateQuantity, removeItem, subtotal, isOpen, setIsOpen } = useCart();
   const [checkingOut, setCheckingOut] = useState(false);
   const [error, setError] = useState('');
-  const [pickupChoice, setPickupChoice] = useState('asap'); // "asap" | "time"
+  const [pickupChoice, setPickupChoice] = useState('asap'); // "asap" | "time" | "ecss"
   const [pickupTimeValue, setPickupTimeValue] = useState('');
   const [pickupDateValue, setPickupDateValue] = useState(''); // YYYY-MM-DD, '' = soonest day
+  const [ecssDate, setEcssDate] = useState('');
+  const [ecssName, setEcssName] = useState('');
+  const [ecssPhone, setEcssPhone] = useState('');
+  const [ecssNotes, setEcssNotes] = useState('');
 
   // Trading hours decide what's offered. Only worked out while the drawer is
   // showing a non-empty cart, i.e. always after hydration.
   const status = isOpen && items.length > 0 ? getStatus() : null;
-  const effectiveChoice = status && !status.canAsap ? 'time' : pickupChoice;
+  const ecssOptions = status ? ecssDeliveryOptions() : [];
+  const ecssSelected = ecssOptions.find((o) => o.dateISO === ecssDate) || ecssOptions[0] || null;
+  const effectiveChoice =
+    pickupChoice === 'ecss' && ecssOptions.length > 0
+      ? 'ecss'
+      : status && !status.canAsap
+      ? 'time'
+      : pickupChoice === 'ecss'
+      ? 'asap'
+      : pickupChoice;
   const selectedDay = status
     ? status.days.find((d) => d.dateISO === pickupDateValue) || status.days[0]
     : null;
@@ -25,9 +42,27 @@ export default function CartDrawer() {
   async function handleCheckout() {
     setError('');
     const current = getStatus();
-    const choice = current.canAsap ? pickupChoice : 'time';
+    const ecssNow = ecssDeliveryOptions();
+    const choice =
+      pickupChoice === 'ecss' && ecssNow.length > 0
+        ? 'ecss'
+        : current.canAsap && pickupChoice !== 'ecss'
+        ? pickupChoice
+        : 'time';
     let day = null;
-    if (choice === 'time') {
+    let ecss = null;
+    if (choice === 'ecss') {
+      const opt = ecssNow.find((o) => o.dateISO === ecssDate) || ecssNow[0];
+      if (!ecssName.trim()) {
+        setError('Enter your name so we know who the delivery is for.');
+        return;
+      }
+      if (ecssPhone.replace(/\D/g, '').length < 8) {
+        setError('Enter a mobile number we can reach on the day.');
+        return;
+      }
+      ecss = { date: opt.dateISO, name: ecssName.trim(), phone: ecssPhone.trim(), notes: ecssNotes.trim() };
+    } else if (choice === 'time') {
       day = current.days.find((d) => d.dateISO === pickupDateValue) || current.days[0];
       if (!day) {
         setError('Sorry, we can’t take pickup orders right now.');
@@ -57,8 +92,12 @@ export default function CartDrawer() {
             quantity: l.quantity,
             modifierIds: (l.modifiers || []).map((m) => m.id),
           })),
-          pickupTime: choice === 'asap' ? 'asap' : pickupTimeValue,
-          pickupDate: day ? day.dateISO : undefined,
+          ...(ecss
+            ? { ecss }
+            : {
+                pickupTime: choice === 'asap' ? 'asap' : pickupTimeValue,
+                pickupDate: day ? day.dateISO : undefined,
+              }),
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -158,14 +197,14 @@ export default function CartDrawer() {
               <div className="font-mono text-[11px] tracking-wide uppercase text-[#6b6552] mb-2">
                 Pickup time
               </div>
-              {status && !status.open && (
+              {status && !status.open && effectiveChoice !== 'ecss' && (
                 <p className="font-mono text-[12px] text-chili-dark mb-2">
                   {status.days[0] && status.days[0].isToday
                     ? 'We’re not open yet — choose a pickup time once we open.'
                     : 'We’re closed for today — choose a day and time below.'}
                 </p>
               )}
-              {status && status.open && !status.canAsap && (
+              {status && status.open && !status.canAsap && effectiveChoice !== 'ecss' && (
                 <p className="font-mono text-[12px] text-chili-dark mb-2">
                   We&apos;re about to close &mdash; choose another day and time below.
                 </p>
@@ -196,7 +235,76 @@ export default function CartDrawer() {
                   />
                   Choose a day &amp; time
                 </label>
+                {ecssOptions.length > 0 && (
+                  <label className="flex items-start gap-2 cursor-pointer rounded-[3px] border border-[#DEB663] bg-[#141414] px-3 py-2.5 text-white">
+                    <input
+                      type="radio"
+                      name="pickup-time"
+                      checked={effectiveChoice === 'ecss'}
+                      onChange={() => setPickupChoice('ecss')}
+                      className="mt-0.5 accent-[#DEB663]"
+                    />
+                    <span>
+                      <span className="block text-[11px] tracking-[1.5px] uppercase text-[#DEB663]">
+                        {ECSS_CAMP.school} coaches
+                      </span>
+                      <span className="block">
+                        Delivery to camp at {ecssOptions[0].timeLabel}
+                      </span>
+                    </span>
+                  </label>
+                )}
               </div>
+              {effectiveChoice === 'ecss' && ecssSelected && (
+                <div className="mt-2 rounded-[3px] border border-[#DEB663] bg-[#FFF8E4] p-3 space-y-2">
+                  <div className="flex items-center gap-2.5">
+                    <img src={ECSS_CAMP.logo} alt="" width="36" height="36" className="w-9 h-9 shrink-0" />
+                    <p className="font-mono text-[11px] text-[#4a4636] leading-snug">
+                      Delivered to the {ECSS_CAMP.title} at {ecssSelected.timeLabel}. Order by{' '}
+                      {formatMinutes(ECSS_CAMP.coachDelivery.cutoffMinutes)} on the day.
+                    </p>
+                  </div>
+                  <select
+                    aria-label="Delivery day"
+                    value={ecssSelected.dateISO}
+                    onChange={(e) => setEcssDate(e.target.value)}
+                    className={fieldCls}
+                  >
+                    {ecssOptions.map((o) => (
+                      <option key={o.dateISO} value={o.dateISO}>
+                        {o.label} at {o.timeLabel}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="text"
+                    aria-label="Your name"
+                    placeholder="Your name"
+                    autoComplete="name"
+                    value={ecssName}
+                    onChange={(e) => setEcssName(e.target.value)}
+                    className={fieldCls}
+                  />
+                  <input
+                    type="tel"
+                    aria-label="Mobile number"
+                    placeholder="Mobile number"
+                    autoComplete="tel"
+                    value={ecssPhone}
+                    onChange={(e) => setEcssPhone(e.target.value)}
+                    className={fieldCls}
+                  />
+                  <input
+                    type="text"
+                    aria-label="Notes"
+                    placeholder="Notes, e.g. which field (optional)"
+                    value={ecssNotes}
+                    onChange={(e) => setEcssNotes(e.target.value)}
+                    maxLength={200}
+                    className={fieldCls}
+                  />
+                </div>
+              )}
               {effectiveChoice === 'time' && status && selectedDay && (
                 <div className="mt-2 grid grid-cols-[1fr_auto] gap-2">
                   <select

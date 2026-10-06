@@ -2,6 +2,7 @@ import Seo from '../components/Seo';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import MenuCard from '../components/MenuCard';
+import EcssBanner from '../components/EcssBanner';
 import { fetchMenu } from '../lib/square';
 import { curateMenu } from '../lib/menuConfig';
 import { ALLERGEN_NOTE } from '../lib/site';
@@ -43,6 +44,7 @@ export default function Menu({ categories }) {
           Browse the full menu and add items to your order. Checkout is handled securely
           through Square.
         </p>
+        <EcssBanner />
         <p className="mt-5 max-w-[640px] border border-dashed border-ink/25 rounded-[3px] px-4 py-3 text-[13px] text-ink/70">
           {ALLERGEN_NOTE}
           {legend.length > 0 && (

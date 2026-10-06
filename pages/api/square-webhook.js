@@ -2,9 +2,10 @@ import crypto from 'node:crypto';
 import { sendOrderEmail, emailConfigured } from '../../lib/email';
 
 // Square calls this when something happens in your account. We only act on a
-// completed payment for a catering order (reference starting "CAT-"), and
-// email you the invoice (Catering) or receipt (Kids Catering) at that moment —
-// so you're only emailed for orders that were actually paid.
+// completed payment for a catering order (reference starting "CAT-") or an
+// ECSS coach delivery (reference starting "ECSS-"), and email you the invoice,
+// receipt or delivery details at that moment — so you're only emailed for
+// orders that were actually paid.
 //
 // Needs SQUARE_WEBHOOK_SIGNATURE_KEY in Vercel (the key Square gives you for
 // the webhook subscription). Without it every request is rejected.
@@ -81,6 +82,37 @@ function buildEmail({ order, payment }) {
   };
 }
 
+// Temporary ECSS soccer camp coach deliveries (see lib/ecssDelivery.js).
+function buildEcssEmail({ order, payment }) {
+  const meta = order.metadata || {};
+  const when = `${meta.delivery_date || ''} ${meta.delivery_time || ''}`.trim();
+  const lines = [
+    `ECSS COACH LUNCH — DELIVERY ${when}`,
+    'PAID BY CARD — confirmed by Square',
+    '',
+    `Deliver: ${meta.delivery_date || '?'} at ${meta.delivery_time || '?'}`,
+    `Coach:   ${meta.coach || '?'}`,
+    `Phone:   ${meta.phone || '?'}`,
+  ];
+  const notes = String(payment.note || '').split(' | ').find((p) => p.startsWith('Notes: '));
+  if (notes) lines.push(notes.replace('Notes: ', 'Notes:   '));
+  lines.push('', 'ITEMS');
+  for (const li of order.line_items || []) {
+    const variation = li.variation_name && li.variation_name !== 'Regular' ? ` (${li.variation_name})` : '';
+    lines.push(`${li.quantity} x ${li.name}${variation}`);
+    for (const m of li.modifiers || []) lines.push(`    + ${m.name}`);
+  }
+  lines.push('', `Paid: ${money(payment.amount_money?.amount)}`);
+  if (payment.buyer_email_address) lines.push(`Customer email: ${payment.buyer_email_address}`);
+  lines.push('', `Order ${order.reference_id} · Square payment ${payment.id}`);
+
+  return {
+    subject: `ECSS coach lunch — ${meta.delivery_date || ''} ${meta.delivery_time || ''} — ${meta.coach || ''} (paid)`,
+    text: lines.join('\n'),
+    replyTo: payment.buyer_email_address,
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -110,14 +142,16 @@ export default async function handler(req, res) {
 
   try {
     const order = await fetchOrder(payment.order_id);
-    if (!String(order?.reference_id || '').startsWith('CAT-')) {
-      return res.status(200).json({ ignored: 'not a catering order' });
+    const ref = String(order?.reference_id || '');
+    const isEcss = ref.startsWith('ECSS-');
+    if (!isEcss && !ref.startsWith('CAT-')) {
+      return res.status(200).json({ ignored: 'not a catering or ECSS order' });
     }
     if (!emailConfigured()) {
-      console.warn(`Catering order ${order.reference_id} paid, but email isn't set up (RESEND_API_KEY / ORDER_FROM_EMAIL).`);
+      console.warn(`Order ${ref} paid, but email isn't set up (RESEND_API_KEY / ORDER_FROM_EMAIL).`);
       return res.status(200).json({ ok: true, emailed: false });
     }
-    const email = buildEmail({ order, payment });
+    const email = isEcss ? buildEcssEmail({ order, payment }) : buildEmail({ order, payment });
     await sendOrderEmail({ ...email, idempotencyKey: `square-payment-${payment.id}` });
     return res.status(200).json({ ok: true, emailed: true });
   } catch (err) {

@@ -93,5 +93,14 @@ email is sent when checkout *starts*.
   `lib/catering.js` sets the camp name, dates, which packages are in the group
   and the last day it shows (`until`). After that date the packages return to
   the normal list on their own. Logo: `public/ecss-logo.png`.
+- **ECSS coach delivery** (temporary, main menu cart): `ECSS_CAMP.coachDelivery`
+  in `lib/catering.js` sets the delivery days, time and same-day ordering
+  cut-off. Coaches add normal menu items, pick Thursday/Friday and give a name
+  and mobile. Square gets ticket name `ECSS Fri 12pm Sam`, a marker note on every
+  item, an `ECSS-…` reference, and (once the webhook + email are set up) the
+  café is emailed when it's paid. The option, the menu-page banner and the
+  email trigger all disappear once the days have passed — to remove the code
+  entirely, delete `lib/ecssDelivery.js`, `components/EcssBanner.jsx` and the
+  `ecss` branches in `CartDrawer.jsx`, `create-checkout.js`, `square-webhook.js`.
 - **Visitor stats:** Vercel Analytics (`pages/_app.jsx`) — switch it on under
   the project's Analytics tab.
